@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+require('dotenv').config();
 
 /**
  * MongoDB Connection với multiple fallbacks:

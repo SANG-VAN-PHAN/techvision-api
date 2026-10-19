@@ -87,6 +87,17 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 // ==================== STATIC FILES ====================
+// Serve root index.html
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public/index.html'));
+});
+
+// Serve admin
+app.get('/admin', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public/admin/index.html'));
+});
+
+// Serve static files from public folder
 app.use('/public', express.static(path.join(__dirname, '../public')));
 
 // ==================== API ROUTES ====================
