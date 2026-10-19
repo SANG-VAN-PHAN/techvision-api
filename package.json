@@ -1,0 +1,13 @@
+{
+  "name": "techvision-ecommerce",
+  "version": "1.0.0",
+  "description": "TechVision E-Commerce Platform - Full Stack",
+  "main": "server/src/index.js",
+  "scripts": {
+    "start": "node server/src/index.js",
+    "dev": "nodemon server/src/index.js",
+    "install:all": "npm install && cd server && npm install"
+  },
+  "keywords": ["ecommerce", "mongodb", "express", "nodejs"],
+  "license": "MIT"
+}

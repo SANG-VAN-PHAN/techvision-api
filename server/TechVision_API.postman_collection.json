@@ -1,0 +1,197 @@
+{
+  "info": {
+    "name": "TechVision API",
+    "description": "E-commerce 2handland với Rental + Buyback + Consignment",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5000/api" },
+    { "key": "token", "value": "" }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{token}}" }]
+  },
+  "item": [
+    {
+      "name": "🔐 Auth",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@techvision.vn\",\n  \"password\": \"admin123\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+          }
+        },
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test User\",\n  \"email\": \"test@example.com\",\n  \"password\": \"test123\",\n  \"phone\": \"0909000333\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/register", "host": ["{{baseUrl}}"], "path": ["auth", "register"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🏢 Branches",
+      "item": [
+        { "name": "List Branches", "request": { "method": "GET", "url": "{{baseUrl}}/branches" } },
+        { "name": "Get Branch", "request": { "method": "GET", "url": "{{baseUrl}}/branches/:id" } },
+        { "name": "Create Branch", "request": {
+          "method": "POST",
+          "header": [{ "key": "Content-Type", "value": "application/json" }],
+          "body": { "mode": "raw", "raw": "{\n  \"name\": \"Chi nhánh Quận 1\",\n  \"phone\": \"02811112222\",\n  \"address\": \"123 Nguyễn Huệ\",\n  \"city\": \"TP. Hồ Chí Minh\",\n  \"district\": \"Quận 1\"\n}" },
+          "url": "{{baseUrl}}/branches"
+        }}
+      ]
+    },
+    {
+      "name": "📁 Categories",
+      "item": [
+        { "name": "List Categories", "request": { "method": "GET", "url": "{{baseUrl}}/categories" } },
+        { "name": "Get Category", "request": { "method": "GET", "url": "{{baseUrl}}/categories/:slug" } }
+      ]
+    },
+    {
+      "name": "📦 Products",
+      "item": [
+        { "name": "List Products", "request": { "method": "GET", "url": "{{baseUrl}}/products" } },
+        { "name": "Get Product + Items", "request": { "method": "GET", "url": "{{baseUrl}}/products/iphone-15-pro-256gb" } },
+        { "name": "Featured", "request": { "method": "GET", "url": "{{baseUrl}}/products/featured" } },
+        { "name": "Search", "request": { "method": "GET", "url": "{{baseUrl}}/products/search?q=iphone" } }
+      ]
+    },
+    {
+      "name": "📱 ProductItems (IMEI/Serial)",
+      "item": [
+        { "name": "List Items", "request": { "method": "GET", "url": "{{baseUrl}}/product-items" } },
+        { "name": "Filter for Sale", "request": { "method": "GET", "url": "{{baseUrl}}/product-items?forSale=true" } },
+        { "name": "Filter for Rent", "request": { "method": "GET", "url": "{{baseUrl}}/product-items?forRent=true" } },
+        { "name": "Filter by Branch", "request": { "method": "GET", "url": "{{baseUrl}}/product-items?branch=:branchId" } },
+        { "name": "Get Item by ID", "request": { "method": "GET", "url": "{{baseUrl}}/product-items/:id" } },
+        { "name": "Get Item by Serial/IMEI", "request": { "method": "GET", "url": "{{baseUrl}}/product-items/serial/35xxx" } },
+        { "name": "Create Item", "request": {
+          "method": "POST",
+          "header": [{ "key": "Content-Type", "value": "application/json" }],
+          "body": { "mode": "raw", "raw": "{\n  \"product\": \"{{productId}}\",\n  \"branch\": \"{{branchId}}\",\n  \"serialNumber\": \"SN123456\",\n  \"imei\": \"359999999999999\",\n  \"conditionRate\": 97,\n  \"conditionLabel\": \"like_new\",\n  \"batteryHealth\": 90,\n  \"salePrice\": 17500000,\n  \"originalPrice\": 22990000,\n  \"rentalPricePerDay\": 90000,\n  \"rentalDeposit\": 5000000,\n  \"isForSale\": true,\n  \"isForRent\": true,\n  \"status\": \"available\"\n}" },
+          "url": "{{baseUrl}}/product-items"
+        }}
+      ]
+    },
+    {
+      "name": "📋 Orders",
+      "item": [
+        { "name": "List Orders", "request": { "method": "GET", "url": "{{baseUrl}}/orders" } },
+        { "name": "Get Order", "request": { "method": "GET", "url": "{{baseUrl}}/orders/:id" } }
+      ]
+    },
+    {
+      "name": "🔄 Rentals (Thuê)",
+      "item": [
+        { "name": "List Rentals", "request": { "method": "GET", "url": "{{baseUrl}}/rentals" } },
+        { "name": "Active Rentals", "request": { "method": "GET", "url": "{{baseUrl}}/rentals?status=active" } },
+        { "name": "Get Rental", "request": { "method": "GET", "url": "{{baseUrl}}/rentals/:id" } },
+        { "name": "Create Rental", "request": {
+          "method": "POST",
+          "header": [{ "key": "Content-Type", "value": "application/json" }],
+          "body": { "mode": "raw", "raw": "{\n  \"productItem\": \"{{productItemId}}\",\n  \"branch\": \"{{branchId}}\",\n  \"startDate\": \"2026-10-25\",\n  \"endDate\": \"2026-10-30\",\n  \"paymentMethod\": \"cash\",\n  \"customerInfo\": {\n    \"name\": \"Phan Văn Sang\",\n    \"phone\": \"0909000111\",\n    \"idCard\": \"012345678901\"\n  }\n}" },
+          "url": "{{baseUrl}}/rentals"
+        }},
+        { "name": "Confirm Rental", "request": { "method": "PATCH", "url": "{{baseUrl}}/rentals/:id/confirm" } },
+        { "name": "Activate Rental (Bàn giao)", "request": { "method": "PATCH", "url": "{{baseUrl}}/rentals/:id/active" } },
+        { "name": "Return Rental (Trả máy)", "request": {
+          "method": "PATCH",
+          "header": [{ "key": "Content-Type", "value": "application/json" }],
+          "body": { "mode": "raw", "raw": "{\n  \"conditionRate\": 95,\n  \"conditionNote\": \"Có xước nhẹ\",\n  \"damageFee\": 200000\n}" },
+          "url": "{{baseUrl}}/rentals/:id/return"
+        }},
+        { "name": "Cancel Rental", "request": { "method": "PATCH", "url": "{{baseUrl}}/rentals/:id/cancel" } }
+      ]
+    },
+    {
+      "name": "💰 Buyback (Thu mua)",
+      "item": [
+        { "name": "List Buyback", "request": { "method": "GET", "url": "{{baseUrl}}/buyback" } },
+        { "name": "Pending Buyback", "request": { "method": "GET", "url": "{{baseUrl}}/buyback?status=pending" } },
+        { "name": "Create Buyback", "request": {
+          "method": "POST",
+          "header": [{ "key": "Content-Type", "value": "application/json" }],
+          "body": { "mode": "raw", "raw": "{\n  \"branch\": \"{{branchId}}\",\n  \"productName\": \"iPhone 13 Pro 256GB\",\n  \"category\": \"{{categoryId}}\",\n  \"brand\": \"Apple\",\n  \"yearOfPurchase\": 2022,\n  \"description\": \"Máy dùng tốt, có box\",\n  \"condition\": {\n    \"rate\": 95,\n    \"label\": \"like_new\",\n    \"batteryHealth\": 88,\n    \"hasBox\": true\n  },\n  \"images\": [{\"url\": \"/img.jpg\", \"type\": \"front\"}],\n  \"expectedPrice\": 15000000\n}" },
+          "url": "{{baseUrl}}/buyback"
+        }},
+        { "name": "Assign Appraiser", "request": {
+          "method": "PATCH",
+          "header": [{ "key": "Content-Type", "value": "application/json" }],
+          "body": { "mode": "raw", "raw": "{ \"appraiserId\": \"{{staffId}}\" }" },
+          "url": "{{baseUrl}}/buyback/:id/assign"
+        }},
+        { "name": "Appraise (Định giá)", "request": {
+          "method": "PATCH",
+          "header": [{ "key": "Content-Type", "value": "application/json" }],
+          "body": { "mode": "raw", "raw": "{\n  \"estimatedPrice\": 14500000,\n  \"appraisalNotes\": \"Máy đẹp\"\n}" },
+          "url": "{{baseUrl}}/buyback/:id/estimate"
+        }},
+        { "name": "Accept (Khách đồng ý)", "request": { "method": "PATCH", "url": "{{baseUrl}}/buyback/:id/accept" } },
+        { "name": "Reject", "request": {
+          "method": "PATCH",
+          "header": [{ "key": "Content-Type", "value": "application/json" }],
+          "body": { "mode": "raw", "raw": "{ \"reason\": \"Không phù hợp\" }" },
+          "url": "{{baseUrl}}/buyback/:id/reject"
+        }},
+        { "name": "Complete", "request": {
+          "method": "PATCH",
+          "header": [{ "key": "Content-Type", "value": "application/json" }],
+          "body": { "mode": "raw", "raw": "{\n  \"finalPrice\": 14500000,\n  \"productItemData\": {\n    \"product\": \"{{productId}}\",\n    \"branch\": \"{{branchId}}\",\n    \"serialNumber\": \"SN999\",\n    \"conditionRate\": 95,\n    \"salePrice\": 18990000\n  }\n}" },
+          "url": "{{baseUrl}}/buyback/:id/complete"
+        }}
+      ]
+    },
+    {
+      "name": "🤝 Consignments (Ký gửi)",
+      "item": [
+        { "name": "List Consignments", "request": { "method": "GET", "url": "{{baseUrl}}/consignments" } },
+        { "name": "Get Consignment", "request": { "method": "GET", "url": "{{baseUrl}}/consignments/:id" } },
+        { "name": "Create Consignment", "request": {
+          "method": "POST",
+          "header": [{ "key": "Content-Type", "value": "application/json" }],
+          "body": { "mode": "raw", "raw": "{\n  \"branch\": \"{{branchId}}\",\n  \"startDate\": \"2026-10-19\",\n  \"endDate\": \"2026-12-19\",\n  \"salePrice\": 18000000,\n  \"minimumPrice\": 16500000,\n  \"commissionRate\": 15,\n  \"productItemData\": {\n    \"product\": \"{{productId}}\",\n    \"conditionRate\": 98,\n    \"serialNumber\": \"SN888\",\n    \"salePrice\": 18000000\n  }\n}" },
+          "url": "{{baseUrl}}/consignments"
+        }},
+        { "name": "Approve", "request": { "method": "PATCH", "url": "{{baseUrl}}/consignments/:id/approve" } },
+        { "name": "Mark Sold", "request": {
+          "method": "PATCH",
+          "header": [{ "key": "Content-Type", "value": "application/json" }],
+          "body": { "mode": "raw", "raw": "{ \"actualSalePrice\": 17500000 }" },
+          "url": "{{baseUrl}}/consignments/:id/sold"
+        }},
+        { "name": "Return", "request": { "method": "PATCH", "url": "{{baseUrl}}/consignments/:id/return" } },
+        { "name": "Cancel", "request": { "method": "PATCH", "url": "{{baseUrl}}/consignments/:id/cancel" } }
+      ]
+    },
+    {
+      "name": "📝 Blog Posts",
+      "item": [
+        { "name": "List Posts", "request": { "method": "GET", "url": "{{baseUrl}}/posts" } },
+        { "name": "Get Post", "request": { "method": "GET", "url": "{{baseUrl}}/posts/:slug" } },
+        { "name": "Search Posts", "request": { "method": "GET", "url": "{{baseUrl}}/posts?q=iphone" } }
+      ]
+    },
+    {
+      "name": "🎟️ Coupons",
+      "item": [
+        { "name": "List Coupons", "request": { "method": "GET", "url": "{{baseUrl}}/coupons" } },
+        { "name": "Validate", "request": { "method": "POST", "url": "{{baseUrl}}/coupons/validate" } }
+      ]
+    }
+  ]
+}

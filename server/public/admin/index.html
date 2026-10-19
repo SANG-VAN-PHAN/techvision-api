@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TechVision Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root { --primary: #0d6efd; --sidebar: #1a1d21; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f8f9fa; }
+        .sidebar { background: var(--sidebar); min-height: 100vh; position: fixed; width: 240px; }
+        .sidebar .nav-link { color: #aaa; padding: 12px 20px; }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active { background: rgba(255,255,255,.1); color: #fff; }
+        .sidebar .nav-link i { width: 24px; }
+        .main-content { margin-left: 240px; padding: 24px; }
+        .stat-card { border: none; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+        .stat-card .icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+        .table-hover tbody tr:hover { background: #f8f9fa; }
+        .badge-status { font-size: .75rem; padding: .35em .65em; }
+        .navbar-brand { font-weight: 700; }
+        .toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <nav class="sidebar">
+        <div class="p-4 border-bottom border-secondary">
+            <a href="#" class="navbar-brand text-white text-decoration-none">
+                <i class="bi bi-shop me-2"></i>TechVision
+            </a>
+        </div>
+        <ul class="nav flex-column mt-2">
+            <li class="nav-item"><a href="#" class="nav-link active" data-page="dashboard"><i class="bi bi-grid-1x2"></i> Dashboard</a></li>
+            <li class="nav-item"><a href="#" class="nav-link" data-page="products"><i class="bi bi-box-seam"></i> Sản phẩm</a></li>
+            <li class="nav-item"><a href="#" class="nav-link" data-page="product-items"><i class="bi bi-upc-scan"></i> Từng máy (IMEI)</a></li>
+            <li class="nav-item"><a href="#" class="nav-link" data-page="orders"><i class="bi bi-cart3"></i> Đơn hàng</a></li>
+            <li class="nav-item"><a href="#" class="nav-link" data-page="rentals"><i class="bi bi-calendar-event"></i> Đơn thuê</a></li>
+            <li class="nav-item"><a href="#" class="nav-link" data-page="buyback"><i class="bi bi-arrow-repeat"></i> Thu mua</a></li>
+            <li class="nav-item"><a href="#" class="nav-link" data-page="consignments"><i class="bi bi-people"></i> Ký gửi</a></li>
+            <li class="nav-item"><a href="#" class="nav-link" data-page="posts"><i class="bi bi-newspaper"></i> Bài viết</a></li>
+            <li class="nav-item"><a href="#" class="nav-link" data-page="branches"><i class="bi bi-geo-alt"></i> Chi nhánh</a></li>
+            <li class="nav-item"><a href="#" class="nav-link" data-page="users"><i class="bi bi-people"></i> Người dùng</a></li>
+            <li class="nav-item mt-4"><a href="#" class="nav-link" onclick="logout()"><i class="bi bi-box-arrow-right"></i> Đăng xuất</a></li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Dashboard Page -->
+        <div id="page-dashboard" class="page">
+            <h4 class="mb-4"><i class="bi bi-grid-1x2 me-2"></i>Dashboard</h4>
+            <!-- Stats Cards -->
+            <div class="row g-4 mb-4">
+                <div class="col-md-3">
+                    <div class="card stat-card p-3">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <p class="text-muted mb-1 small">Người dùng</p>
+                                <h3 id="stat-users">-</h3>
+                            </div>
+                            <div class="icon bg-primary bg-opacity-10 text-primary"><i class="bi bi-people"></i></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card stat-card p-3">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <p class="text-muted mb-1 small">Sản phẩm</p>
+                                <h3 id="stat-products">-</h3>
+                            </div>
+                            <div class="icon bg-success bg-opacity-10 text-success"><i class="bi bi-box-seam"></i></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card stat-card p-3">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <p class="text-muted mb-1 small">Máy trong kho</p>
+                                <h3 id="stat-items">-</h3>
+                            </div>
+                            <div class="icon bg-warning bg-opacity-10 text-warning"><i class="bi bi-upc-scan"></i></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card stat-card p-3">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <p class="text-muted mb-1 small">Giá trị kho</p>
+                                <h3 id="stat-value">-</h3>
+                            </div>
+                            <div class="icon bg-danger bg-opacity-10 text-danger"><i class="bi bi-currency-dollar"></i></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Branch Inventory -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0">Tồn kho theo chi nhánh</h6>
+                </div>
+                <div class="card-body">
+                    <table class="table table-hover mb-0">
+                        <thead><tr><th>Chi nhánh</th><th>Tổng</th><th>Available</th><th>Đã bán</th><th>Đang thuê</th><th>Giá trị</th></tr></thead>
+                        <tbody id="table-branch-inventory"></tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- Condition Distribution -->
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-white"><h6 class="mb-0">Phân bố tình trạng</h6></div>
+                        <div class="card-body" id="condition-chart"></div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-white"><h6 class="mb-0">Thống kê nhanh</h6></div>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between py-2 border-bottom"><span>Thu mua chờ duyệt</span><span class="badge bg-warning" id="stat-pending-buyback">0</span></div>
+                            <div class="d-flex justify-content-between py-2 border-bottom"><span>Đơn thuê đang hoạt động</span><span class="badge bg-info" id="stat-active-rentals">0</span></div>
+                            <div class="d-flex justify-content-between py-2 border-bottom"><span>Ký gửi đang bán</span><span class="badge bg-success" id="stat-active-consign">0</span></div>
+                            <div class="d-flex justify-content-between py-2"><span>Đơn hàng hôm nay</span><span class="badge bg-primary" id="stat-orders-today">0</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Product Items Page -->
+        <div id="page-product-items" class="page d-none">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="mb-0"><i class="bi bi-upc-scan me-2"></i>Quản lý từng máy</h4>
+                <button class="btn btn-primary" onclick="showModal('product-item-modal')"><i class="bi bi-plus-lg"></i> Thêm máy</button>
+            </div>
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-3"><select class="form-select" id="filter-item-status"><option value="">Tất cả trạng thái</option><option value="available">Available</option><option value="sold">Sold</option><option value="rented">Rented</option></select></div>
+                        <div class="col-md-3"><select class="form-select" id="filter-item-condition"><option value="">Tất cả tình trạng</option><option value="like_new">Like New</option><option value="good">Good</option><option value="openbox">OpenBox</option></select></div>
+                        <div class="col-md-3"><select class="form-select" id="filter-item-for"><option value="">Tất cả</option><option value="forSale=true">Cho bán</option><option value="forRent=true">Cho thuê</option></select></div>
+                    </div>
+                    <table class="table table-hover">
+                        <thead><tr><th>Serial/IMEI</th><th>Sản phẩm</th><th>Chi nhánh</th><th>Tình trạng</th><th>% Pin</th><th>Giá bán</th><th>Thuê/ngày</th><th>Trạng thái</th><th>Thao tác</th></tr></thead>
+                        <tbody id="table-product-items"></tbody>
+                    </table>
+                    <nav><ul class="pagination justify-content-end" id="pagination-product-items"></ul></nav>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rentals Page -->
+        <div id="page-rentals" class="page d-none">
+            <h4 class="mb-4"><i class="bi bi-calendar-event me-2"></i>Quản lý đơn thuê</h4>
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <table class="table table-hover">
+                        <thead><tr><th>Mã</th><th>Khách hàng</th><th>Sản phẩm</th><th>Ngày thuê</th><th>Số ngày</th><th>Tổng phí</th><th>Cọc</th><th>Trạng thái</th><th>Thao tác</th></tr></thead>
+                        <tbody id="table-rentals"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Buyback Page -->
+        <div id="page-buyback" class="page d-none">
+            <h4 class="mb-4"><i class="bi bi-arrow-repeat me-2"></i>Quản lý thu mua</h4>
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <table class="table table-hover">
+                        <thead><tr><th>Mã</th><th>Khách</th><th>Sản phẩm</th><th>Giá mong muốn</th><th>Giá ước tính</th><th>Trạng thái</th><th>Ngày tạo</th><th>Thao tác</th></tr></thead>
+                        <tbody id="table-buyback"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Consignments Page -->
+        <div id="page-consignments" class="page d-none">
+            <h4 class="mb-4"><i class="bi bi-people me-2"></i>Quản lý ký gửi</h4>
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <table class="table table-hover">
+                        <thead><tr><th>Mã</th><th>Chủ sở hữu</th><th>Sản phẩm</th><th>Giá bán</th><th>Hoa hồng %</th><th>Ngày hết hạn</th><th>Trạng thái</th><th>Thao tác</th></tr></thead>
+                        <tbody id="table-consignments"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Posts Page -->
+        <div id="page-posts" class="page d-none">
+            <h4 class="mb-4"><i class="bi bi-newspaper me-2"></i>Quản lý bài viết</h4>
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <table class="table table-hover">
+                        <thead><tr><th>Tiêu đề</th><th>Danh mục</th><th>Tác giả</th><th>Trạng thái</th><th>Lượt xem</th><th>Ngày đăng</th></tr></thead>
+                        <tbody id="table-posts"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Branches Page -->
+        <div id="page-branches" class="page d-none">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="mb-0"><i class="bi bi-geo-alt me-2"></i>Quản lý chi nhánh</h4>
+                <button class="btn btn-primary" onclick="showModal('branch-modal')"><i class="bi bi-plus-lg"></i> Thêm chi nhánh</button>
+            </div>
+            <div class="row" id="branches-grid"></div>
+        </div>
+
+        <!-- Products Page -->
+        <div id="page-products" class="page d-none">
+            <h4 class="mb-4"><i class="bi bi-box-seam me-2"></i>Quản lý sản phẩm</h4>
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <table class="table table-hover">
+                        <thead><tr><th>Hình</th><th>Tên</th><th>Danh mục</th><th>Giá</th><th>Kho</th><th>Nổi bật</th></tr></thead>
+                        <tbody id="table-products"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Orders Page -->
+        <div id="page-orders" class="page d-none">
+            <h4 class="mb-4"><i class="bi bi-cart3 me-2"></i>Đơn hàng</h4>
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <table class="table table-hover">
+                        <thead><tr><th>Mã đơn</th><th>Khách hàng</th><th>Tổng tiền</th><th>Thanh toán</th><th>Trạng thái</th><th>Ngày đặt</th></tr></thead>
+                        <tbody id="table-orders"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Users Page -->
+        <div id="page-users" class="page d-none">
+            <h4 class="mb-4"><i class="bi bi-people me-2"></i>Người dùng</h4>
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <table class="table table-hover">
+                        <thead><tr><th>Tên</th><th>Email</th><th>Điện thoại</th><th>Vai trò</th><th>Ngày tạo</th></tr></thead>
+                        <tbody id="table-users"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <script>
+        const API = 'http://localhost:5000/api';
+        let token = localStorage.getItem('token');
+
+        // Check auth
+        if (!token) { window.location.href = 'login.html'; }
+
+        // Format currency
+        const formatCurrency = (n) => n ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(n) : '-';
+        const formatDate = (d) => d ? new Date(d).toLocaleDateString('vi-VN') : '-';
+
+        // Toast notification
+        function showToast(msg, type = 'success') {
+            const id = 'toast-' + Date.now();
+            const html = `<div id="${id}" class="toast align-items-center text-bg-${type} border-0" role="alert"><div class="d-flex"><div class="toast-body">${msg}</div><button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button></div></div>`;
+            document.getElementById('toast-container').insertAdjacentHTML('beforeend', html);
+            bootstrap.Toast.getOrCreateInstance(document.getElementById(id)).show();
+        }
+
+        // API helper
+        async function api(endpoint, options = {}) {
+            const headers = { 'Content-Type': 'application/json' };
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+            const res = await fetch(`${API}${endpoint}`, { ...options, headers: { ...headers, ...options.headers } });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.message || 'Lỗi API');
+            return data;
+        }
+
+        // Navigation
+        document.querySelectorAll('.nav-link[data-page]').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const page = link.dataset.page;
+                document.querySelectorAll('.page').forEach(p => p.classList.add('d-none'));
+                document.getElementById('page-' + page)?.classList.remove('d-none');
+                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                link.classList.add('active');
+                loadPage(page);
+            });
+        });
+
+        // Load page
+        async function loadPage(page) {
+            try {
+                switch(page) {
+                    case 'dashboard': await loadDashboard(); break;
+                    case 'product-items': await loadProductItems(); break;
+                    case 'rentals': await loadRentals(); break;
+                    case 'buyback': await loadBuyback(); break;
+                    case 'consignments': await loadConsignments(); break;
+                    case 'posts': await loadPosts(); break;
+                    case 'branches': await loadBranches(); break;
+                    case 'products': await loadProducts(); break;
+                    case 'orders': await loadOrders(); break;
+                    case 'users': await loadUsers(); break;
+                }
+            } catch (e) { showToast(e.message, 'danger'); }
+        }
+
+        // Dashboard
+        async function loadDashboard() {
+            const [overview, branchInv, conditionStats] = await Promise.all([
+                api('/admin/dashboard/overview'),
+                api('/admin/dashboard/inventory-by-branch'),
+                api('/admin/dashboard/condition-stats')
+            ]);
+            const d = overview.data;
+            document.getElementById('stat-users').textContent = d.counts.users;
+            document.getElementById('stat-products').textContent = d.counts.products;
+            document.getElementById('stat-items').textContent = d.counts.productItems;
+            document.getElementById('stat-value').textContent = formatCurrency(d.inventoryValue);
+            document.getElementById('stat-pending-buyback').textContent = d.alerts.pendingBuybacks;
+            document.getElementById('stat-active-rentals').textContent = d.alerts.activeRentals;
+            document.getElementById('stat-active-consign').textContent = d.alerts.activeConsignments;
+            document.getElementById('stat-orders-today').textContent = d.orders.today;
+
+            // Branch inventory table
+            const tbody = document.getElementById('table-branch-inventory');
+            tbody.innerHTML = branchInv.data.branches.map(b => `<tr><td>${b.branchName}<br><small class="text-muted">${b.city}</small></td><td>${b.total}</td><td>${b.available}</td><td>${b.sold}</td><td>${b.rented}</td><td>${formatCurrency(b.value)}</td></tr>`).join('');
+
+            // Condition chart (simple)
+            const chartDiv = document.getElementById('condition-chart');
+            chartDiv.innerHTML = conditionStats.data.conditions.map(c => `<div class="mb-2"><div class="d-flex justify-content-between small"><span>${c._id}</span><span>${c.count} máy</span></div><div class="progress" style="height:8px"><div class="progress-bar bg-success" style="width:${c.count/conditionStats.data.conditions.reduce((s,x)=>s+x.count,0)*100}%"></div></div></div>`).join('');
+        }
+
+        // Product Items
+        async function loadProductItems(page = 1) {
+            const params = new URLSearchParams({ page, limit: 15 });
+            ['filter-item-status', 'filter-item-condition', 'filter-item-for'].forEach(id => {
+                const v = document.getElementById(id)?.value;
+                if (v) params.append(id.includes('for') ? v.split('=')[0] : id.replace('filter-item-', ''), v.split('=')[1] || v);
+            });
+            const res = await api('/product-items?' + params);
+            const { items, pagination } = res.data;
+            document.getElementById('table-product-items').innerHTML = items.map(i => `<tr>
+                <td><small>${i.serialNumber || '-'}<br><span class="text-muted">${i.imei || '-'}</span></small></td>
+                <td>${i.product?.name || '-'}</td>
+                <td>${i.branch?.name || '-'}</td>
+                <td><span class="badge bg-${i.conditionRate >= 97 ? 'success' : i.conditionRate >= 95 ? 'info' : 'warning'}">${i.conditionLabel || i.conditionRate + '%'}</span></td>
+                <td>${i.batteryHealth ? i.batteryHealth + '%' : '-'}</td>
+                <td>${formatCurrency(i.salePrice)}</td>
+                <td>${i.rentalPricePerDay ? formatCurrency(i.rentalPricePerDay) : '-'}/ngày</td>
+                <td><span class="badge bg-${i.status === 'available' ? 'success' : i.status === 'sold' ? 'secondary' : i.status === 'rented' ? 'info' : 'warning'}">${i.status}</span></td>
+                <td><button class="btn btn-sm btn-outline-primary" onclick="editProductItem('${i._id}')"><i class="bi bi-pencil"></i></button></td>
+            </tr>`).join('');
+            // Pagination
+            const pg = document.getElementById('pagination-product-items');
+            pg.innerHTML = pagination.pages > 1 ? Array.from({length: pagination.pages}, (_, i) => `<li class="page-item ${i+1 === page ? 'active' : ''}"><a class="page-link" href="#" onclick="loadProductItems(${i+1});return false">${i+1}</a></li>`).join('') : '';
+        }
+
+        // Rentals
+        async function loadRentals() {
+            const res = await api('/rentals');
+            document.getElementById('table-rentals').innerHTML = res.data.rentals.map(r => `<tr>
+                <td><code>${r.rentalCode}</code></td>
+                <td>${r.user?.fullName || '-'}<br><small>${r.user?.phone || ''}</small></td>
+                <td>${r.product?.name || '-'}</td>
+                <td>${formatDate(r.startDate)} - ${formatDate(r.endDate)}</td>
+                <td>${r.rentalDays}</td>
+                <td>${formatCurrency(r.totalRentalFee)}</td>
+                <td>${formatCurrency(r.depositAmount)}</td>
+                <td><span class="badge bg-${r.status === 'active' ? 'success' : r.status === 'pending' ? 'warning' : 'secondary'}">${r.status}</span></td>
+                <td>${r.status === 'pending' ? `<button class="btn btn-sm btn-success" onclick="confirmRental('${r._id}')">Duyệt</button>` : r.status === 'confirmed' ? `<button class="btn btn-sm btn-primary" onclick="activateRental('${r._id}')">Bàn giao</button>` : r.status === 'active' ? `<button class="btn btn-sm btn-info" onclick="returnRental('${r._id}')">Trả máy</button>` : '-'}</td>
+            </tr>`).join('');
+        }
+
+        // Buyback
+        async function loadBuyback() {
+            const res = await api('/buyback');
+            document.getElementById('table-buyback').innerHTML = res.data.requests.map(r => `<tr>
+                <td><code>${r.requestCode}</code></td>
+                <td>${r.user?.fullName || '-'}</td>
+                <td>${r.productName}</td>
+                <td>${formatCurrency(r.expectedPrice)}</td>
+                <td>${formatCurrency(r.estimatedPrice)}</td>
+                <td><span class="badge bg-${r.status === 'pending' ? 'warning' : r.status === 'appraised' ? 'info' : 'success'}">${r.status}</span></td>
+                <td>${formatDate(r.createdAt)}</td>
+                <td>${r.status === 'pending' ? `<button class="btn btn-sm btn-primary" onclick="appraiseBuyback('${r._id}')">Định giá</button>` : '-'}</td>
+            </tr>`).join('');
+        }
+
+        // Consignments
+        async function loadConsignments() {
+            const res = await api('/consignments');
+            document.getElementById('table-consignments').innerHTML = res.data.consignments.map(c => `<tr>
+                <td><code>${c.consignmentCode}</code></td>
+                <td>${c.owner?.fullName || '-'}</td>
+                <td>${c.productItem?.product?.name || '-'}</td>
+                <td>${formatCurrency(c.salePrice)}</td>
+                <td>${c.commissionRate}%</td>
+                <td>${formatDate(c.endDate)}</td>
+                <td><span class="badge bg-${c.status === 'active' ? 'success' : c.status === 'sold' ? 'primary' : 'secondary'}">${c.status}</span></td>
+                <td>${c.status === 'pending' ? `<button class="btn btn-sm btn-success" onclick="approveConsignment('${c._id}')">Duyệt</button>` : c.status === 'active' ? `<button class="btn btn-sm btn-primary" onclick="markConsignmentSold('${c._id}')">Đã bán</button>` : '-'}</td>
+            </tr>`).join('');
+        }
+
+        // Posts
+        async function loadPosts() {
+            const res = await api('/posts/admin/all');
+            document.getElementById('table-posts').innerHTML = res.data.posts.map(p => `<tr>
+                <td>${p.title}</td>
+                <td><span class="badge bg-secondary">${p.category}</span></td>
+                <td>${p.author?.fullName || '-'}</td>
+                <td><span class="badge bg-${p.status === 'published' ? 'success' : 'warning'}">${p.status}</span></td>
+                <td>${p.viewCount}</td>
+                <td>${formatDate(p.publishedAt)}</td>
+            </tr>`).join('');
+        }
+
+        // Branches
+        async function loadBranches() {
+            const res = await api('/branches');
+            document.getElementById('branches-grid').innerHTML = res.data.branches.map(b => `<div class="col-md-4 mb-3">
+                <div class="card h-100"><div class="card-body"><h6>${b.name}</h6><p class="mb-1"><i class="bi bi-telephone me-1"></i>${b.phone}</p><p class="mb-1"><i class="bi bi-geo-alt me-1"></i>${b.address}</p><p class="mb-0 text-muted">${b.city}</p></div></div>
+            </div>`).join('');
+        }
+
+        // Products
+        async function loadProducts() {
+            const res = await api('/products/admin/all');
+            document.getElementById('table-products').innerHTML = res.data.products.map(p => `<tr>
+                <td><img src="${p.thumbnail || p.images?.[0]?.url || '/images/no-image.jpg'}" width="50" class="rounded"></td>
+                <td>${p.name}</td>
+                <td>${p.category?.name || '-'}</td>
+                <td>${formatCurrency(p.price)}</td>
+                <td>${p.stock}</td>
+                <td>${p.isFeatured ? '<i class="bi bi-star-fill text-warning"></i>' : ''}</td>
+            </tr>`).join('');
+        }
+
+        // Orders
+        async function loadOrders() {
+            const res = await api('/orders');
+            document.getElementById('table-orders').innerHTML = res.data.orders.map(o => `<tr>
+                <td><code>${o.orderNumber}</code></td>
+                <td>${o.user?.name || o.guestName || '-'}</td>
+                <td>${formatCurrency(o.total)}</td>
+                <td><span class="badge bg-${o.paymentStatus === 'paid' ? 'success' : 'warning'}">${o.paymentStatus}</span></td>
+                <td><span class="badge bg-${o.status === 'delivered' ? 'success' : o.status === 'cancelled' ? 'danger' : 'info'}">${o.status}</span></td>
+                <td>${formatDate(o.createdAt)}</td>
+            </tr>`).join('');
+        }
+
+        // Users
+        async function loadUsers() {
+            const res = await api('/users');
+            document.getElementById('table-users').innerHTML = res.data.users.map(u => `<tr>
+                <td>${u.name}</td>
+                <td>${u.email}</td>
+                <td>${u.phone || '-'}</td>
+                <td><span class="badge bg-${u.role === 'admin' ? 'danger' : 'primary'}">${u.role}</span></td>
+                <td>${formatDate(u.createdAt)}</td>
+            </tr>`).join('');
+        }
+
+        // Actions
+        async function confirmRental(id) { await api(`/rentals/${id}/confirm`, {method:'PATCH'}); loadRentals(); showToast('Đã xác nhận đơn thuê'); }
+        async function activateRental(id) { await api(`/rentals/${id}/active`, {method:'PATCH'}); loadRentals(); showToast('Đã bàn giao máy'); }
+        async function returnRental(id) { if(confirm('Xác nhận trả máy?')) { await api(`/rentals/${id}/return`, {method:'PATCH', body: JSON.stringify({conditionRate:95, conditionNote:'OK'})}); loadRentals(); showToast('Đã trả máy'); }}
+        async function appraiseBuyback(id) { const price = prompt('Nhập giá ước tính:'); if(price) { await api(`/buyback/${id}/estimate`, {method:'PATCH', body: JSON.stringify({estimatedPrice:Number(price), appraisalNotes:'Đã định giá'})}); loadBuyback(); showToast('Đã gửi báo giá'); }}
+        async function approveConsignment(id) { await api(`/consignments/${id}/approve`, {method:'PATCH'}); loadConsignments(); showToast('Đã duyệt ký gửi'); }
+        async function markConsignmentSold(id) { await api(`/consignments/${id}/sold`, {method:'PATCH'}); loadConsignments(); showToast('Đã đánh dấu bán'); }
+        function editProductItem(id) { showToast('Chức năng sửa đang phát triển'); }
+
+        // Logout
+        function logout() { localStorage.removeItem('token'); window.location.href = 'login.html'; }
+
+        // Init
+        loadDashboard();
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

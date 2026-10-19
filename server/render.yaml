@@ -1,0 +1,41 @@
+# render.yaml - Auto-deploy configuration
+# Deploy: https://dashboard.render.com/blueprints
+
+services:
+  - type: web
+    name: techvision-api
+    env: node
+    region: singapore  # Gần VN, latency thấp
+    plan: free  # $0/tháng (750h/month)
+    
+    # Build settings
+    buildCommand: npm install
+    startCommand: npm start
+    
+    # Environment variables (set in Render dashboard)
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      
+      # MongoDB Atlas - ADD YOUR OWN
+      - key: MONGODB_URI
+        sync: false  # Set in Render dashboard
+      
+      # JWT - ADD YOUR OWN  
+      - key: JWT_SECRET
+        sync: false  # Set in Render dashboard
+      
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      
+      # Frontend URL (CORS)
+      - key: FRONTEND_URL
+        value: https://your-frontend.onrender.com
+
+# Free tier limits:
+# - 750 hours/month
+# - Sleeps after 15 min inactivity (cold start ~30s)
+# - No persistent disk (use Atlas for data)
+# - 512MB RAM
