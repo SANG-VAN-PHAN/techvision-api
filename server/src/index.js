@@ -106,13 +106,20 @@ app.use('/api/posts', postRoutes);
 app.use('/api/consignments', consignmentRoutes);
 app.use('/api/admin/dashboard', dashboardRoutes);
 
-// Health check
+// Health check (nhẹ, dùng cho keep-alive)
 app.get('/api/health', (req, res) => {
     res.json({ 
         status: 'ok', 
         timestamp: new Date().toISOString(),
-        uptime: process.uptime()
+        uptime: process.uptime(),
+        environment: process.env.NODE_ENV || 'development',
+        version: '1.0.0'
     });
+});
+
+// Ping endpoint đơn giản (rất nhẹ, chỉ trả OK)
+app.get('/ping', (req, res) => {
+    res.status(200).send('pong');
 });
 
 // ==================== ERROR HANDLING ====================

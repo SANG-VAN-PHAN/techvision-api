@@ -1,0 +1,46 @@
+name: Keep Render Alive
+
+# Chạy mỗi 14 phút để giữ Render Free tier không bị sleep
+on:
+  schedule:
+    # Mỗi 14 phút (cron chạy theo UTC, trước 14 phút so với sleep timeout 15 phút của Render)
+    - cron: '*/14 * * * *'
+  
+  # Cho phép chạy thủ công từ GitHub Actions tab
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    
+    steps:
+      - name: Ping Render API để giữ service không sleep
+        run: |
+          echo "🔄 Pinging Render API..."
+          
+          # Ping 2 endpoints song song để chắc chắn
+          PING_URL="https://techvision-api.onrender.com/ping"
+          HEALTH_URL="https://techvision-api.onrender.com/api/health"
+          
+          # Ping nhẹ (chỉ trả pong)
+          echo "📡 Ping /ping: $PING_URL"
+          PING_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -L --max-time 60 "$PING_URL" || echo "000")
+          
+          # Health check chi tiết
+          echo "📡 Ping /api/health: $HEALTH_URL"
+          HEALTH_RESPONSE=$(curl -s -L --max-time 60 "$HEALTH_URL" || echo "{}")
+          HEALTH_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -L --max-time 60 "$HEALTH_URL" || echo "000")
+          
+          echo "✅ Ping status: $PING_STATUS"
+          echo "✅ Health status: $HEALTH_STATUS"
+          echo "📊 Health response: $HEALTH_RESPONSE"
+          
+          # Exit code để hiển thị pass/fail trong GitHub
+          if [ "$PING_STATUS" = "200" ] || [ "$HEALTH_STATUS" = "200" ]; then
+            echo "✅ Service is alive! Render will not sleep."
+            exit 0
+          else
+            echo "⚠️ Service may be down, but will retry next run"
+            exit 0
+          fi
