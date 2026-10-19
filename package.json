@@ -8,6 +8,14 @@
     "dev": "nodemon server/src/index.js",
     "install:all": "npm install && cd server && npm install"
   },
-  "keywords": ["ecommerce", "mongodb", "express", "nodejs"],
-  "license": "MIT"
+  "keywords": [
+    "ecommerce",
+    "mongodb",
+    "express",
+    "nodejs"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
 }
