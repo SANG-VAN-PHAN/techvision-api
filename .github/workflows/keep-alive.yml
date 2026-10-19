@@ -20,24 +20,18 @@ jobs:
           echo "🔄 Pinging Render API..."
           
           # Ping 2 endpoints song song để chắc chắn
-          PING_URL="https://techvision-api.onrender.com/ping"
           HEALTH_URL="https://techvision-api.onrender.com/api/health"
-          
-          # Ping nhẹ (chỉ trả pong)
-          echo "📡 Ping /ping: $PING_URL"
-          PING_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -L --max-time 60 "$PING_URL" || echo "000")
           
           # Health check chi tiết
           echo "📡 Ping /api/health: $HEALTH_URL"
           HEALTH_RESPONSE=$(curl -s -L --max-time 60 "$HEALTH_URL" || echo "{}")
           HEALTH_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -L --max-time 60 "$HEALTH_URL" || echo "000")
           
-          echo "✅ Ping status: $PING_STATUS"
           echo "✅ Health status: $HEALTH_STATUS"
           echo "📊 Health response: $HEALTH_RESPONSE"
           
           # Exit code để hiển thị pass/fail trong GitHub
-          if [ "$PING_STATUS" = "200" ] || [ "$HEALTH_STATUS" = "200" ]; then
+          if [ "$HEALTH_STATUS" = "200" ]; then
             echo "✅ Service is alive! Render will not sleep."
             exit 0
           else
