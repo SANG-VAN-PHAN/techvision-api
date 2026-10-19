@@ -1,8 +1,8 @@
 // TechVision API Configuration
 // Kết nối cùng Backend với Web
 
-const API_URL = 'http://localhost:5000/api';
-const WS_URL = 'ws://localhost:5000';
+const API_URL = 'https://techvision-api.onrender.com/api';
+const WS_URL = 'wss://techvision-api.onrender.com';
 
 export const CONFIG = {
   API_URL,
