@@ -39,6 +39,16 @@ router.get('/', asyncHandler(async (req, res) => {
     });
 }));
 
+// GET /api/product-items/serial/:serial
+// PHẢI đặt trước /:id, nếu không sẽ bị shadow (serial = "serial")
+router.get('/serial/:serial', asyncHandler(async (req, res) => {
+    const item = await ProductItem.findOne({
+        $or: [{ serialNumber: req.params.serial }, { imei: req.params.serial }]
+    }).populate('product', 'name slug').populate('branch', 'name');
+    if (!item) return res.status(404).json({ status: 'fail', message: 'Không tìm thấy máy với serial/IMEI này!' });
+    res.json({ status: 'success', data: { item } });
+}));
+
 // GET /api/product-items/:id
 router.get('/:id', asyncHandler(async (req, res) => {
     const item = await ProductItem.findById(req.params.id)
@@ -46,15 +56,6 @@ router.get('/:id', asyncHandler(async (req, res) => {
         .populate('branch', 'name address phone')
         .populate('consignmentFrom.user', 'fullName phone');
     if (!item) return res.status(404).json({ status: 'fail', message: 'Sản phẩm không tồn tại!' });
-    res.json({ status: 'success', data: { item } });
-}));
-
-// GET /api/product-items/serial/:serial
-router.get('/serial/:serial', asyncHandler(async (req, res) => {
-    const item = await ProductItem.findOne({
-        $or: [{ serialNumber: req.params.serial }, { imei: req.params.serial }]
-    }).populate('product', 'name slug').populate('branch', 'name');
-    if (!item) return res.status(404).json({ status: 'fail', message: 'Không tìm thấy máy với serial/IMEI này!' });
     res.json({ status: 'success', data: { item } });
 }));
 

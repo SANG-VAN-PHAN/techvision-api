@@ -33,6 +33,20 @@ router.get('/', asyncHandler(async (req, res) => {
     });
 }));
 
+// GET /api/posts/admin/all - Staff/Admin: lấy cả draft
+// PHẢI đặt trước /:slug, nếu không sẽ bị shadow (slug = "admin")
+router.get('/admin/all', staffOnly, asyncHandler(async (req, res) => {
+    const filter = {};
+    if (req.query.status) filter.status = req.query.status;
+    if (req.query.author) filter.author = req.query.author;
+
+    const posts = await Post.find(filter)
+        .populate('author', 'fullName')
+        .sort({ createdAt: -1 });
+
+    res.json({ status: 'success', data: { posts } });
+}));
+
 // GET /api/posts/:slug - Public: chi tiết
 router.get('/:slug', asyncHandler(async (req, res) => {
     const post = await Post.findOne({ slug: req.params.slug, status: 'published' })
@@ -46,19 +60,6 @@ router.get('/:slug', asyncHandler(async (req, res) => {
     await post.save();
 
     res.json({ status: 'success', data: { post } });
-}));
-
-// GET /api/posts/admin/all - Staff/Admin: lấy cả draft
-router.get('/admin/all', staffOnly, asyncHandler(async (req, res) => {
-    const filter = {};
-    if (req.query.status) filter.status = req.query.status;
-    if (req.query.author) filter.author = req.query.author;
-
-    const posts = await Post.find(filter)
-        .populate('author', 'fullName')
-        .sort({ createdAt: -1 });
-
-    res.json({ status: 'success', data: { posts } });
 }));
 
 // POST /api/posts - Staff/Admin tạo

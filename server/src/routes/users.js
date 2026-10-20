@@ -137,6 +137,18 @@ router.delete('/addresses/:id', protect, asyncHandler(async (req, res) => {
     });
 }));
 
+// Get wishlist - lấy danh sách yêu thích (dùng bởi mobile app)
+// PHẢI đặt trước /wishlist/:productId
+router.get('/wishlist', protect, asyncHandler(async (req, res) => {
+    const user = await User.findById(req.user._id)
+        .populate('wishlist', 'name slug thumbnail price description');
+    
+    res.json({
+        status: 'success',
+        data: { wishlist: user.wishlist }
+    });
+}));
+
 // Add to wishlist
 router.post('/wishlist/:productId', protect, asyncHandler(async (req, res) => {
     const user = await User.findById(req.user._id);
