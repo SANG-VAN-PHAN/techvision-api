@@ -6,41 +6,18 @@ const User = require('../models/User');
 const { AppError, asyncHandler } = require('../middleware/errorHandler');
 const { OAuth2Client } = require('google-auth-library');
 const crypto = require('crypto');
-const { Resend } = require('resend');
+const emailService = require('../services/emailService');
 
 // Google OAuth Client
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
-// Resend email client
-const resend = process.env.RESEND_API_KEY
-    ? new Resend(process.env.RESEND_API_KEY)
-    : null;
-
-const FROM_EMAIL = process.env.FROM_EMAIL || 'TechVision <onboarding@resend.dev>';
-
-// Send email via Resend (falls back to console log in dev)
-const sendEmail = async ({ to, subject, html }) => {
-    if (resend && process.env.NODE_ENV === 'production') {
-        // Real send in production
-        await resend.emails.send({
-            from: FROM_EMAIL,
-            to,
-            subject,
-            html
-        });
-    } else if (process.env.NODE_ENV === 'development' || !resend) {
-        // Dev: log to console
-        console.log('\n========== [EMAIL] ==========');
-        console.log(`To: ${to}`);
-        console.log(`Subject: ${subject}`);
-        console.log(`Body:\n${html}`);
-        console.log('=============================\n');
-    }
-};
-
 // Email verification URL (override via FRONTEND_URL env)
 const getVerificationUrl = (token) =>
     `${process.env.FRONTEND_URL || 'https://techvision-api.onrender.com'}/verify-email?token=${token}`;
+
+// Password reset URL
+const getResetUrl = (token) =>
+    `${process.env.FRONTEND_URL || 'https://techvision-api.onrender.com'}/reset-password?token=${token}`;
 
 // Generate tokens
 const generateTokens = (user) => {
@@ -101,27 +78,22 @@ exports.register = asyncHandler(async (req, res) => {
 
     // Send verification email
     const verifyUrl = getVerificationUrl(verificationToken);
-    await sendEmail({
+    const emailResult = await emailService.sendVerificationEmail({
         to: email,
-        subject: 'Xác minh email - TechVision',
-        html: `
-            <h2>Xin chào ${name}!</h2>
-            <p>Cảm ơn bạn đã đăng ký tài khoản TechVision.</p>
-            <p>Vui lòng click vào link bên dưới để xác minh email:</p>
-            <a href="${verifyUrl}" style="display:inline-block;background:#0066FF;color:#fff;padding:12px 24px;text-decoration:none;border-radius:8px;">Xác minh email</a>
-            <p>Link có hiệu lực trong 24 giờ.</p>
-            <p>Nếu bạn không đăng ký tài khoản này, vui lòng bỏ qua email.</p>
-        `
+        name,
+        verifyUrl
     });
 
     res.status(201).json({
         status: 'success',
-        message: 'Đăng ký thành công! Vui lòng kiểm tra email để xác minh tài khoản.',
+        message: emailResult.sent
+            ? 'Đăng ký thành công! Vui lòng kiểm tra email để xác minh tài khoản.'
+            : 'Đăng ký thành công! (Không gửi được email xác minh, vui lòng liên hệ hỗ trợ)',
         data: {
             user,
             token,
             refreshToken,
-            emailSent: true
+            emailSent: emailResult.sent
         }
     });
 });
@@ -384,8 +356,12 @@ exports.forgotPassword = asyncHandler(async (req, res) => {
     
     await user.save();
 
-    // TODO: Send email with reset link
-    // In production, use nodemailer with SMTP
+    const resetUrl = getResetUrl(resetToken);
+    await emailService.sendPasswordResetEmail({
+        to: user.email,
+        name: user.name,
+        resetUrl
+    });
 
     res.json({
         status: 'success',
@@ -505,19 +481,14 @@ exports.resendVerification = asyncHandler(async (req, res) => {
     await user.save();
 
     const verifyUrl = getVerificationUrl(verificationToken);
-    await sendEmail({
+    const result = await emailService.sendVerificationEmail({
         to: user.email,
-        subject: 'Xác minh email - TechVision',
-        html: `
-            <h2>Xin chào ${user.name}!</h2>
-            <p>Bạn yêu cầu gửi lại link xác minh email.</p>
-            <a href="${verifyUrl}" style="display:inline-block;background:#0066FF;color:#fff;padding:12px 24px;text-decoration:none;border-radius:8px;">Xác minh email</a>
-            <p>Link có hiệu lực trong 24 giờ.</p>
-        `
+        name: user.name,
+        verifyUrl
     });
 
     res.json({
         status: 'success',
-        message: 'Đã gửi lại email xác minh!'
+        message: result.sent ? 'Đã gửi lại email xác minh!' : 'Gửi email thất bại, vui lòng thử lại sau.'
     });
 });

@@ -27,18 +27,29 @@ services:
       - key: JWT_SECRET
         sync: false  # Set in Render dashboard
 
-      # Resend Email (https://resend.com) - Get free API key
+      # Email - Resend (fallback, giới hạn người nhận nếu chưa verify domain)
       - key: RESEND_API_KEY
         sync: false  # Set in Render dashboard
 
-      # Email sender
-      - key: FROM_EMAIL
-        value: TechVision <onboarding@resend.dev>
+      # SMTP - Brevo (gửi đến mọi người, không cần verify domain)
+      # https://app.brevo.com/settings/keys/smtp
+      - key: SMTP_HOST
+        sync: false  # smtp-relay.brevo.com
+      - key: SMTP_PORT
+        value: 587
+      - key: SMTP_SECURE
+        value: "false"
+      - key: SMTP_USER
+        sync: false  # SMTP key của bạn
+      - key: SMTP_PASS
+        sync: false  # SMTP key của bạn
+      - key: SMTP_FROM
+        sync: false  # Email đã verify trong Brevo, ví dụ: no-reply@techvision.vn
 
       - key: JWT_EXPIRES_IN
         value: 7d
 
-      # Frontend URL (CORS)
+      # Frontend URL (CORS + link xác minh email)
       - key: FRONTEND_URL
         value: https://your-frontend.onrender.com
 
