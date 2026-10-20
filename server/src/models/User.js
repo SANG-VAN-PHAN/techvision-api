@@ -30,7 +30,8 @@ const userSchema = new mongoose.Schema({
     phone: {
         type: String,
         trim: true,
-        match: [/^[0-9]{10,11}$/, 'Số điện thoại không hợp lệ']
+        required: [true, 'Số điện thoại là bắt buộc'],
+        match: [/^(0[0-9]{9,10})$/, 'Số điện thoại không hợp lệ (phải bắt đầu bằng 0, 10-11 số)']
     },
     avatar: {
         type: String,
@@ -60,11 +61,19 @@ const userSchema = new mongoose.Schema({
     addresses: [{
         name: String,
         phone: String,
-        address: String,
-        city: String,
+        address: { type: String, required: [true, 'Địa chỉ là bắt buộc'] },
+        city: { type: String, required: [true, 'Thành phố là bắt buộc'] },
         district: String,
+        ward: String,
         isDefault: Boolean
     }],
+    // Email verification
+    emailVerificationToken: String,
+    emailVerificationExpires: Date,
+    isEmailVerified: {
+        type: Boolean,
+        default: false
+    },
     // Cart (for guests or logged out)
     cart: [{
         product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },

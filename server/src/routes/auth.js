@@ -9,6 +9,8 @@ const { protect } = require('../middleware/auth');
 
 router.post('/register', authController.register);
 router.post('/login', authController.login);
+router.get('/verify-email', authController.verifyEmail);
+router.post('/resend-verification', authController.resendVerification);
 router.post('/google', authController.googleAuth);
 router.post('/facebook', authController.facebookAuth);
 router.post('/refresh', authController.refreshToken);

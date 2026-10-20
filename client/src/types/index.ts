@@ -8,6 +8,7 @@ export interface User {
   avatar?: string;
   role: 'user' | 'admin';
   isActive: boolean;
+  isEmailVerified: boolean;
   addresses: Address[];
   createdAt: string;
   updatedAt: string;

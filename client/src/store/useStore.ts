@@ -3,6 +3,16 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { User, Product, CartItem, Order } from '../types';
 import { PRODUCTS, COUPONS } from '../data/products';
 
+interface RegisterData {
+  name: string;
+  email: string;
+  phone: string;
+  password: string;
+  address: string;
+  city: string;
+  district?: string;
+}
+
 interface AppState {
   // User
   user: User | null;
@@ -28,6 +38,7 @@ interface AppState {
   
   // Actions
   login: (email: string, password: string) => Promise<void>;
+  register: (data: RegisterData) => Promise<void>;
   loginWithGoogle: () => Promise<void>;
   loginWithFacebook: () => Promise<void>;
   logout: () => void;
@@ -63,23 +74,45 @@ export const useStore = create<AppState>((set, get) => ({
   login: async (email: string, password: string) => {
     set({ isLoading: true });
     try {
-      // In production: call API
-      const user: User = {
-        _id: '1',
-        email,
-        name: email.split('@')[0],
-        role: email.includes('admin') ? 'admin' : 'user',
-        isActive: true,
-        addresses: [],
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-      
+      const API_BASE = 'https://techvision-api.onrender.com/api';
+      const res = await fetch(`${API_BASE}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Đăng nhập thất bại');
+
+      const { user, token, refreshToken } = data.data;
       await AsyncStorage.setItem('user', JSON.stringify(user));
-      await AsyncStorage.setItem('token', 'demo_token');
-      
-      set({ user, token: 'demo_token', isAuthenticated: true, isLoading: false });
-    } catch (error) {
+      await AsyncStorage.setItem('token', token);
+      await AsyncStorage.setItem('refreshToken', refreshToken);
+      set({ user, token, isAuthenticated: true, isLoading: false });
+    } catch (error: any) {
+      set({ isLoading: false });
+      throw error;
+    }
+  },
+
+  // Register
+  register: async (data: RegisterData) => {
+    set({ isLoading: true });
+    try {
+      const API_BASE = 'https://techvision-api.onrender.com/api';
+      const res = await fetch(`${API_BASE}/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.message || 'Đăng ký thất bại');
+
+      const { user, token, refreshToken } = json.data;
+      await AsyncStorage.setItem('user', JSON.stringify(user));
+      await AsyncStorage.setItem('token', token);
+      await AsyncStorage.setItem('refreshToken', refreshToken);
+      set({ user, token, isAuthenticated: true, isLoading: false });
+    } catch (error: any) {
       set({ isLoading: false });
       throw error;
     }

@@ -21,17 +21,26 @@ type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 export default function RegisterScreen() {
   const navigation = useNavigation<NavigationProp>();
-  const { login, isLoading } = useStore();
+  const { register, isLoading } = useStore();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [address, setAddress] = useState('');
+  const [city, setCity] = useState('');
+  const [district, setDistrict] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [agreed, setAgreed] = useState(false);
 
   const handleRegister = async () => {
-    if (!name || !email || !password || !confirmPassword) {
-      Alert.alert('Lỗi', 'Vui lòng điền đầy đủ thông tin!');
+    if (!name || !email || !password || !confirmPassword || !phone || !address || !city) {
+      Alert.alert('Lỗi', 'Vui lòng điền đầy đủ thông tin bắt buộc!');
+      return;
+    }
+
+    if (!/^0[0-9]{9,10}$/.test(phone)) {
+      Alert.alert('Lỗi', 'Số điện thoại không hợp lệ! Phải bắt đầu bằng 0 và có 10-11 số.');
       return;
     }
 
@@ -51,13 +60,22 @@ export default function RegisterScreen() {
     }
 
     try {
-      // Simulate registration then login
-      await login(email, password);
-      Alert.alert('Thành công', 'Tạo tài khoản thành công!', [
-        { text: 'OK', onPress: () => navigation.navigate('Main' as any) }
-      ]);
-    } catch (error) {
-      Alert.alert('Lỗi', 'Đăng ký thất bại. Vui lòng thử lại!');
+      await register({
+        name,
+        email,
+        phone,
+        password,
+        address,
+        city,
+        district,
+      });
+      Alert.alert(
+        'Thành công',
+        'Tài khoản đã được tạo! Vui lòng kiểm tra email để xác minh tài khoản trước khi đăng nhập.',
+        [{ text: 'OK', onPress: () => navigation.replace('Login') }]
+      );
+    } catch (error: any) {
+      Alert.alert('Lỗi', error.message || 'Đăng ký thất bại. Vui lòng thử lại!');
     }
   };
 
@@ -82,7 +100,7 @@ export default function RegisterScreen() {
 
             {/* Name Input */}
             <View style={styles.inputGroup}>
-              <Text style={styles.inputLabel}>Họ và tên</Text>
+              <Text style={styles.inputLabel}>Họ và tên <Text style={{color:'#FF3B30'}}>*</Text></Text>
               <View style={styles.inputContainer}>
                 <Ionicons name="person-outline" size={20} color="#86868B" style={styles.inputIcon} />
                 <TextInput
@@ -96,7 +114,7 @@ export default function RegisterScreen() {
 
             {/* Email Input */}
             <View style={styles.inputGroup}>
-              <Text style={styles.inputLabel}>Email</Text>
+              <Text style={styles.inputLabel}>Email <Text style={{color:'#FF3B30'}}>*</Text></Text>
               <View style={styles.inputContainer}>
                 <Ionicons name="mail-outline" size={20} color="#86868B" style={styles.inputIcon} />
                 <TextInput
@@ -110,9 +128,67 @@ export default function RegisterScreen() {
               </View>
             </View>
 
+            {/* Phone Input */}
+            <View style={styles.inputGroup}>
+              <Text style={styles.inputLabel}>Số điện thoại <Text style={{color:'#FF3B30'}}>*</Text></Text>
+              <View style={styles.inputContainer}>
+                <Ionicons name="call-outline" size={20} color="#86868B" style={styles.inputIcon} />
+                <TextInput
+                  style={styles.input}
+                  placeholder="0xxxxxxxxx (10-11 số)"
+                  value={phone}
+                  onChangeText={setPhone}
+                  keyboardType="phone-pad"
+                  maxLength={11}
+                />
+              </View>
+            </View>
+
+            {/* Address Input */}
+            <View style={styles.inputGroup}>
+              <Text style={styles.inputLabel}>Địa chỉ <Text style={{color:'#FF3B30'}}>*</Text></Text>
+              <View style={styles.inputContainer}>
+                <Ionicons name="location-outline" size={20} color="#86868B" style={styles.inputIcon} />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Số nhà, đường, phường/xã"
+                  value={address}
+                  onChangeText={setAddress}
+                />
+              </View>
+            </View>
+
+            {/* City / District */}
+            <View style={{ flexDirection: 'row', gap: 12 }}>
+              <View style={[styles.inputGroup, { flex: 1 }]}>
+                <Text style={styles.inputLabel}>Thành phố / Tỉnh <Text style={{color:'#FF3B30'}}>*</Text></Text>
+                <View style={styles.inputContainer}>
+                  <Ionicons name="business-outline" size={20} color="#86868B" style={styles.inputIcon} />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="TP.HCM / HN / ..."
+                    value={city}
+                    onChangeText={setCity}
+                  />
+                </View>
+              </View>
+              <View style={[styles.inputGroup, { flex: 1 }]}>
+                <Text style={styles.inputLabel}>Quận / Huyện</Text>
+                <View style={styles.inputContainer}>
+                  <Ionicons name="map-outline" size={20} color="#86868B" style={styles.inputIcon} />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Quận 1, ..."
+                    value={district}
+                    onChangeText={setDistrict}
+                  />
+                </View>
+              </View>
+            </View>
+
             {/* Password Input */}
             <View style={styles.inputGroup}>
-              <Text style={styles.inputLabel}>Mật khẩu</Text>
+              <Text style={styles.inputLabel}>Mật khẩu <Text style={{color:'#FF3B30'}}>*</Text></Text>
               <View style={styles.inputContainer}>
                 <Ionicons name="lock-closed-outline" size={20} color="#86868B" style={styles.inputIcon} />
                 <TextInput
@@ -134,7 +210,7 @@ export default function RegisterScreen() {
 
             {/* Confirm Password Input */}
             <View style={styles.inputGroup}>
-              <Text style={styles.inputLabel}>Xác nhận mật khẩu</Text>
+              <Text style={styles.inputLabel}>Xác nhận mật khẩu <Text style={{color:'#FF3B30'}}>*</Text></Text>
               <View style={styles.inputContainer}>
                 <Ionicons name="lock-closed-outline" size={20} color="#86868B" style={styles.inputIcon} />
                 <TextInput

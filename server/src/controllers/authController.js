@@ -5,9 +5,28 @@
 const User = require('../models/User');
 const { AppError, asyncHandler } = require('../middleware/errorHandler');
 const { OAuth2Client } = require('google-auth-library');
+const crypto = require('crypto');
 
 // Google OAuth Client
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
+// Send verification email (stub - implement with nodemailer/sendgrid in production)
+const sendEmail = async ({ to, subject, html }) => {
+    // TODO: Replace with real email service (nodemailer, sendgrid, resend, etc.)
+    if (process.env.NODE_ENV === 'development') {
+        console.log('\n========== [DEV EMAIL] ==========');
+        console.log(`To: ${to}`);
+        console.log(`Subject: ${subject}`);
+        console.log(`Body:\n${html}`);
+        console.log('==================================\n');
+    }
+    // In production: use nodemailer
+    // await sendWithNodemailer({ to, subject, html });
+};
+
+// Email verification URL (override via FRONTEND_URL env)
+const getVerificationUrl = (token) =>
+    `${process.env.FRONTEND_URL || 'https://techvision-api.onrender.com'}/verify-email?token=${token}`;
 
 // Generate tokens
 const generateTokens = (user) => {
@@ -17,10 +36,20 @@ const generateTokens = (user) => {
 };
 
 // @route   POST /api/auth/register
-// @desc    Register new user
+// @desc    Register new user with email verification
 // @access  Public
 exports.register = asyncHandler(async (req, res) => {
-    const { email, password, name, phone } = req.body;
+    const { email, password, name, phone, address, city, district, ward } = req.body;
+
+    // Validate required fields
+    if (!name || !email || !password || !phone || !address || !city) {
+        throw new AppError('Vui lòng điền đầy đủ: họ tên, email, mật khẩu, SĐT, địa chỉ, thành phố!', 400);
+    }
+
+    // Validate phone format
+    if (!/^0[0-9]{9,10}$/.test(phone)) {
+        throw new AppError('Số điện thoại không hợp lệ! Phải bắt đầu bằng 0 và có 10-11 số.', 400);
+    }
 
     // Check if user exists
     const existingUser = await User.findOne({ email });
@@ -33,20 +62,52 @@ exports.register = asyncHandler(async (req, res) => {
         email,
         password,
         name,
-        phone
+        phone,
+        addresses: [{
+            address,
+            city,
+            district: district || '',
+            ward: ward || '',
+            isDefault: true
+        }],
+        isEmailVerified: false
     });
+
+    // Generate email verification token (expires in 24h)
+    const verificationToken = crypto.randomBytes(32).toString('hex');
+    user.emailVerificationToken = crypto
+        .createHash('sha256')
+        .update(verificationToken)
+        .digest('hex');
+    user.emailVerificationExpires = Date.now() + 24 * 60 * 60 * 1000;
 
     // Generate tokens
     const { token, refreshToken } = generateTokens(user);
     await user.save();
 
+    // Send verification email
+    const verifyUrl = getVerificationUrl(verificationToken);
+    await sendEmail({
+        to: email,
+        subject: 'Xác minh email - TechVision',
+        html: `
+            <h2>Xin chào ${name}!</h2>
+            <p>Cảm ơn bạn đã đăng ký tài khoản TechVision.</p>
+            <p>Vui lòng click vào link bên dưới để xác minh email:</p>
+            <a href="${verifyUrl}" style="display:inline-block;background:#0066FF;color:#fff;padding:12px 24px;text-decoration:none;border-radius:8px;">Xác minh email</a>
+            <p>Link có hiệu lực trong 24 giờ.</p>
+            <p>Nếu bạn không đăng ký tài khoản này, vui lòng bỏ qua email.</p>
+        `
+    });
+
     res.status(201).json({
         status: 'success',
-        message: 'Đăng ký thành công!',
+        message: 'Đăng ký thành công! Vui lòng kiểm tra email để xác minh tài khoản.',
         data: {
             user,
             token,
-            refreshToken
+            refreshToken,
+            emailSent: true
         }
     });
 });
@@ -62,6 +123,11 @@ exports.login = asyncHandler(async (req, res) => {
     
     if (!user) {
         throw new AppError('Email hoặc mật khẩu không đúng!', 401);
+    }
+
+    // Check if email is verified
+    if (!user.isEmailVerified) {
+        throw new AppError('Vui lòng xác minh email trước khi đăng nhập! Kiểm tra hộp thư email của bạn.', 403);
     }
 
     // Check if account is locked
@@ -365,5 +431,79 @@ exports.getMe = asyncHandler(async (req, res) => {
     res.json({
         status: 'success',
         data: { user }
+    });
+});
+
+// @route   GET /api/auth/verify-email
+// @desc    Verify email address
+// @access  Public
+exports.verifyEmail = asyncHandler(async (req, res) => {
+    const { token } = req.query;
+
+    if (!token) {
+        throw new AppError('Token xác minh là bắt buộc!', 400);
+    }
+
+    const hashedToken = crypto
+        .createHash('sha256')
+        .update(token)
+        .digest('hex');
+
+    const user = await User.findOne({
+        emailVerificationToken: hashedToken,
+        emailVerificationExpires: { $gt: Date.now() }
+    });
+
+    if (!user) {
+        throw new AppError('Link xác minh không hợp lệ hoặc đã hết hạn!', 400);
+    }
+
+    user.isEmailVerified = true;
+    user.emailVerificationToken = undefined;
+    user.emailVerificationExpires = undefined;
+    await user.save();
+
+    res.json({
+        status: 'success',
+        message: 'Xác minh email thành công!'
+    });
+});
+
+// @route   POST /api/auth/resend-verification
+// @desc    Resend email verification
+// @access  Private
+exports.resendVerification = asyncHandler(async (req, res) => {
+    const user = await User.findById(req.user._id);
+
+    if (user.isEmailVerified) {
+        return res.json({
+            status: 'success',
+            message: 'Email đã được xác minh trước đó.'
+        });
+    }
+
+    const verificationToken = crypto.randomBytes(32).toString('hex');
+    user.emailVerificationToken = crypto
+        .createHash('sha256')
+        .update(verificationToken)
+        .digest('hex');
+    user.emailVerificationExpires = Date.now() + 24 * 60 * 60 * 1000;
+    await user.save();
+
+    const verifyUrl = getVerificationUrl(verificationToken);
+    await sendEmail({
+        to: user.email,
+        subject: 'Xác minh email - TechVision',
+        html: `
+            <h2>Xin chào ${user.name}!</h2>
+            <p>Bạn yêu cầu gửi lại link xác minh email.</p>
+            <a href="${verifyUrl}" style="display:inline-block;background:#0066FF;color:#fff;padding:12px 24px;text-decoration:none;border-radius:8px;">Xác minh email</a>
+            <p>Link có hiệu lực trong 24 giờ.</p>
+        `
+    });
+
+    res.json({
+        status: 'success',
+        message: 'Đã gửi lại email xác minh!'
     });
 });
