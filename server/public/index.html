@@ -1460,7 +1460,7 @@
                 <div class="category-card ${i === 0 ? 'active' : ''}" onclick="filterByCategory(${cat.id})">
                     <div class="category-icon">${cat.icon}</div>
                     <div class="category-name">${cat.name}</div>
-                    <div class="category-count">${cat.count} sản phẩm</div>
+                    <div class="category-count">${products.filter(p => p.categoryId === cat.id).length} sản phẩm</div>
                 </div>
             `).join('');
         }
