@@ -11,13 +11,13 @@ const emailService = require('../services/emailService');
 // Google OAuth Client
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
-// Email verification URL (override via FRONTEND_URL env)
+// Email verification URL — uses custom scheme so React Native app handles it
 const getVerificationUrl = (token) =>
-    `${process.env.FRONTEND_URL || 'https://techvision-api.onrender.com'}/verify-email?token=${token}`;
+    `techvision://verify-email?token=${token}`;
 
 // Password reset URL
 const getResetUrl = (token) =>
-    `${process.env.FRONTEND_URL || 'https://techvision-api.onrender.com'}/reset-password?token=${token}`;
+    `techvision://reset-password?token=${token}`;
 
 // Generate tokens
 const generateTokens = (user) => {

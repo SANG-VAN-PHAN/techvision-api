@@ -1,4 +1,5 @@
 import React from 'react';
+import { Linking } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -15,6 +16,8 @@ import LoginScreen from '../screens/LoginScreen';
 import RegisterScreen from '../screens/RegisterScreen';
 import SearchScreen from '../screens/SearchScreen';
 import CategoryScreen from '../screens/CategoryScreen';
+import VerifyEmailScreen from '../screens/VerifyEmailScreen';
+import ResetPasswordScreen from '../screens/ResetPasswordScreen';
 
 // Types
 export type RootStackParamList = {
@@ -25,6 +28,8 @@ export type RootStackParamList = {
   Register: undefined;
   Search: undefined;
   Category: { categoryId: string; name: string };
+  VerifyEmail: { token?: string };
+  ResetPassword: { token?: string };
 };
 
 export type MainTabParamList = {
@@ -36,6 +41,26 @@ export type MainTabParamList = {
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<MainTabParamList>();
+
+// Deep linking config — maps techvision:// URLs to screens
+const linking = {
+  prefixes: ['techvision://', 'https://techvision.app'],
+  config: {
+    screens: {
+      Main: 'main',
+      VerifyEmail: {
+        path: 'verify-email',
+        parse: { token: (token: string) => token },
+      },
+      ResetPassword: {
+        path: 'reset-password',
+        parse: { token: (token: string) => token },
+      },
+      Login: 'login',
+      Register: 'register',
+    },
+  },
+};
 
 function MainTabs() {
   return (
@@ -73,7 +98,7 @@ function MainTabs() {
 
 export default function AppNavigator() {
   return (
-    <NavigationContainer>
+    <NavigationContainer linking={linking}>
       <Stack.Navigator
         screenOptions={{
           headerStyle: { backgroundColor: '#FFFFFF' },
@@ -110,6 +135,16 @@ export default function AppNavigator() {
           name="Register"
           component={RegisterScreen}
           options={{ title: 'Đăng ký' }}
+        />
+        <Stack.Screen
+          name="VerifyEmail"
+          component={VerifyEmailScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="ResetPassword"
+          component={ResetPasswordScreen}
+          options={{ title: 'Đặt lại mật khẩu' }}
         />
       </Stack.Navigator>
     </NavigationContainer>
