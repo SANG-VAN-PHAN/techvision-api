@@ -97,6 +97,15 @@ app.get('/admin', (req, res) => {
     res.sendFile(path.join(__dirname, '../public/admin/index.html'));
 });
 
+// Serve HTML pages directly
+app.get('/login.html', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public/admin/login.html'));
+});
+
+app.get('/register.html', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public/admin/register.html'));
+});
+
 // Serve static files from public folder
 app.use('/public', express.static(path.join(__dirname, '../public')));
 
