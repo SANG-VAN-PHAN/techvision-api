@@ -5,6 +5,7 @@
 
 const express = require('express');
 const router = express.Router();
+const crypto = require('crypto');
 const { OAuth2Client } = require('google-auth-library');
 const User = require('../models/User');
 const { AppError, asyncHandler } = require('../middleware/errorHandler');
@@ -54,7 +55,9 @@ router.get('/google', (req, res) => {
     const authUrl = googleClient.generateAuthUrl({
         access_type: 'offline',
         scope: scopes,
-        prompt: 'consent'
+        prompt: 'consent',
+        redirect_uri: process.env.GOOGLE_REDIRECT_URI
+            || 'https://techvision-api.onrender.com/api/auth/google/callback'
     });
 
     res.redirect(authUrl);
@@ -79,11 +82,13 @@ router.get('/google/callback', asyncHandler(async (req, res) => {
     }
 
     // Exchange code for tokens
-    const { tokens } = await googleClient.getToken(code);
+    // redirect_uri phải khớp chính xác với lúc redirect, nếu không Google sẽ báo lỗi
+    const redirectUri = process.env.GOOGLE_REDIRECT_URI
+        || 'https://techvision-api.onrender.com/api/auth/google/callback';
+    const { tokens } = await googleClient.getToken({ code, redirect_uri: redirectUri });
     googleClient.setCredentials(tokens);
 
-    // Get user info
-    const googleAuth = googleOAuth2Api();
+    // Verify ID token và lấy thông tin user
     const ticket = await googleClient.verifyIdToken({
         idToken: tokens.id_token,
         audience: process.env.GOOGLE_CLIENT_ID
@@ -91,27 +96,36 @@ router.get('/google/callback', asyncHandler(async (req, res) => {
     const payload = ticket.getPayload();
     const { email, name, picture, sub: googleId } = payload;
 
+    if (!email) {
+        throw new AppError('Google không trả về email!', 400);
+    }
+
     // Find or create user
     let user = await User.findOne({ googleId });
     
     if (!user) {
         user = await User.findOne({ email });
         if (user) {
+            // Liên kết Google account với user đã có
             user.googleId = googleId;
             user.avatar = user.avatar || picture;
+            user.isEmailVerified = true;
         } else {
+            // Tạo user mới — phone là bắt buộc trong model nên dùng placeholder
             user = await User.create({
                 email,
-                name,
+                name: name || email.split('@')[0],
+                phone: `0${Date.now().toString().slice(-9)}`,
+                password: crypto.randomBytes(24).toString('hex'),
                 avatar: picture,
                 googleId,
-                isEmailVerified: true // Google verifies email
+                isEmailVerified: true // Google đã xác minh email
             });
         }
     }
 
     user.lastLogin = new Date();
-    user.loginCount += 1;
+    user.loginCount = (user.loginCount || 0) + 1;
 
     const { token, refreshToken } = generateTokens(user);
     await user.save();
@@ -184,28 +198,32 @@ router.get('/facebook/callback', asyncHandler(async (req, res) => {
     const fbUser = await userRes.json();
 
     const { id: facebookId, name, email, picture } = fbUser;
+    const fbEmail = email || `${facebookId}@facebook.local`;
 
     // Find or create user
     let user = await User.findOne({ facebookId });
     
     if (!user) {
-        user = await User.findOne({ email: email || `${facebookId}@facebook.local` });
+        user = await User.findOne({ email: fbEmail });
         if (user) {
             user.facebookId = facebookId;
             user.avatar = user.avatar || picture?.data?.url;
+            user.isEmailVerified = true;
         } else {
             user = await User.create({
-                email: email || `${facebookId}@facebook.local`,
-                name,
+                email: fbEmail,
+                name: name || fbEmail.split('@')[0],
+                phone: `0${Date.now().toString().slice(-9)}`,
+                password: crypto.randomBytes(24).toString('hex'),
                 avatar: picture?.data?.url,
                 facebookId,
-                isEmailVerified: true // Facebook verifies email
+                isEmailVerified: true
             });
         }
     }
 
     user.lastLogin = new Date();
-    user.loginCount += 1;
+    user.loginCount = (user.loginCount || 0) + 1;
 
     const { token, refreshToken } = generateTokens(user);
     await user.save();
