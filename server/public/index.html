@@ -215,18 +215,17 @@
             transition: var(--transition); display: flex; align-items: center; gap: 4px;
         }
         .view-3d-btn:hover { background: #0066CC; }
-        .product-info { padding: 16px; }
-        .product-brand { font-size: 0.72rem; color: #0066CC; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
-        .product-name { font-size: 1rem; font-weight: 600; margin: 4px 0 8px; color: #1D1D1F; }
-        .product-desc { font-size: 0.82rem; color: #6E6E73; margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.5; }
-        .product-footer { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 12px; }
-        .price-current { font-size: 1.3rem; font-weight: 700; color: #1D1D1F; }
-        .price-old { font-size: 0.82rem; color: #86868B; text-decoration: line-through; margin-left: 6px; }
-        .product-rating { display: flex; align-items: center; gap: 4px; background: #F5F5F7; padding: 4px 8px; border-radius: 6px; }
-        .rating-stars { color: #FFD60A; font-size: 0.85rem; }
-        .rating-count { font-size: 0.78rem; color: #6E6E73; }
-        .product-features { display: flex; flex-wrap: wrap; gap: 6px; padding-top: 12px; border-top: 1px solid #F5F5F7; }
-        .product-features span { background: #F5F5F7; padding: 4px 10px; border-radius: 6px; font-size: 0.72rem; font-weight: 500; color: #6E6E73; }
+        .product-info { padding: 14px 16px 16px; }
+        .product-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .product-name { font-size: 0.95rem; font-weight: 600; color: #1D1D1F; }
+        .product-code { font-size: 0.7rem; color: #86868B; background: #F5F5F7; padding: 2px 8px; border-radius: 4px; }
+        .product-condition-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding: 6px 0; border-top: 1px solid #F5F5F7; border-bottom: 1px solid #F5F5F7; }
+        .condition-label { font-size: 0.75rem; color: #86868B; }
+        .condition-value { font-size: 0.8rem; font-weight: 600; color: #34C759; }
+        .product-price-row { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+        .price-current { font-size: 1.25rem; font-weight: 700; color: #1D1D1F; }
+        .price-old { font-size: 0.8rem; color: #86868B; text-decoration: line-through; }
+        .price-discount { font-size: 0.72rem; font-weight: 600; color: #E74C3C; background: #FEE2E2; padding: 2px 6px; border-radius: 4px; }
 
         /* ========== MODAL ========== */
         .modal-overlay {
@@ -1426,17 +1425,17 @@
             { id: 9, name: 'Flycam', icon: '🚁', count: 18 }
         ];
         const products = [
-            { id: 1, name: 'iPhone 16 Pro Max', brand: 'Apple', icon: '📱', price: 34990000, oldPrice: null, badge: 'new', badgeText: 'Mới', rating: 5.0, reviews: 4521, description: 'iPhone mạnh nhất với chip A18 Pro, màn hình 6.9 inch, camera 48MP.', features: ['A18 Pro', '48MP', '6.9" OLED', 'Titanium'], modelType: 'phone', categoryId: 1, color: 0xf5576c },
-            { id: 2, name: 'AirPods Pro Max', brand: 'Apple', icon: '🎧', price: 14900000, oldPrice: 16900000, badge: 'sale', badgeText: '-12%', rating: 4.9, reviews: 2847, description: 'Tai nghe over-ear cao cấp với chip H2, chống ồn ANC, Spatial Audio.', features: ['Chip H2', 'ANC', 'Spatial Audio', '20h'], modelType: 'headphones', categoryId: 4, color: 0x667eea },
-            { id: 3, name: 'Apple Watch Ultra 2', brand: 'Apple', icon: '⌚', price: 19990000, oldPrice: 21990000, badge: 'sale', badgeText: '-9%', rating: 4.8, reviews: 1893, description: 'Đồng hồ thông minh cho thể thao mạo hiểm, GPS, 36h pin.', features: ['49mm', 'GPS', '36h pin', 'Ocean'], modelType: 'watch', categoryId: 3, color: 0x4facfe },
-            { id: 4, name: 'HomePod Max', brand: 'Apple', icon: '🔊', price: 18900000, oldPrice: null, badge: 'hot', badgeText: 'Hot', rating: 4.7, reviews: 967, description: 'Loa thông minh cao cấp với âm thanh computed audio, Siri tích hợp.', features: ['Computational Audio', '7 Tweeters', 'Siri', 'Stereo'], modelType: 'speaker', categoryId: 7, color: 0xf093fb },
-            { id: 5, name: 'GoPro Hero 13', brand: 'GoPro', icon: '📸', price: 12990000, oldPrice: 14990000, badge: 'sale', badgeText: '-13%', rating: 4.6, reviews: 1234, description: 'Camera hành động với video 5.3K, chống rung HyperSmooth 6.0.', features: ['5.3K60', 'HyperSmooth 6.0', 'Waterproof', 'HDR'], modelType: 'camera', categoryId: 5, color: 0x00d2ff },
-            { id: 6, name: 'DJI Mini 4 Pro', brand: 'DJI', icon: '🚁', price: 24990000, oldPrice: 27990000, badge: 'sale', badgeText: '-11%', rating: 4.9, reviews: 756, description: 'Drone nhỏ gọn dưới 250g với camera 4K/60fps, tránh vật cản 360°.', features: ['4K/60fps', '34min', '360°', 'Under 250g'], modelType: 'drone', categoryId: 9, color: 0x11998e },
-            { id: 7, name: 'Samsung S24 Ultra', brand: 'Samsung', icon: '📱', price: 27990000, oldPrice: 31990000, badge: 'sale', badgeText: '-13%', rating: 4.8, reviews: 3562, description: 'Flagship Samsung với S Pen, camera 200MP, AI features.', features: ['200MP', 'S Pen', 'Snapdragon 8', 'AI'], modelType: 'phone', categoryId: 1, color: 0xf5576c },
-            { id: 8, name: 'MacBook Pro M4', brand: 'Apple', icon: '💻', price: 45990000, oldPrice: null, badge: 'new', badgeText: 'Mới', rating: 5.0, reviews: 892, description: 'Laptop mạnh nhất với chip M4, màn hình Liquid Retina XDR.', features: ['M4 Chip', '32GB RAM', 'Liquid Retina', '22h pin'], modelType: 'laptop', categoryId: 2, color: 0x6e6e73 },
-            { id: 9, name: 'DJI Mavic 4 Pro', brand: 'DJI', icon: '🚁', price: 34990000, oldPrice: 39990000, badge: 'sale', badgeText: '-13%', rating: 5.0, reviews: 534, description: 'Drone flagship với Hasselblad camera 4/3 inch, video 8K, thời gian bay 46 phút.', features: ['8K', '46min', '4/3 CMOS', '15km'], modelType: 'drone', categoryId: 9, color: 0x11998e },
-            { id: 10, name: 'DJI Air 4', brand: 'DJI', icon: '🚁', price: 22990000, oldPrice: null, badge: 'new', badgeText: 'Mới', rating: 4.9, reviews: 312, description: 'Drone tầm trung với camera 1 inch, tránh vật cản omnidirectional, video 5.2K.', features: ['5.2K', '42min', '1-inch CMOS', 'APAS 5.0'], modelType: 'drone', categoryId: 9, color: 0x4facfe },
-            { id: 11, name: 'Autel EVO Lite+', brand: 'Autel', icon: '🚁', price: 28990000, oldPrice: 32990000, badge: 'sale', badgeText: '-12%', rating: 4.8, reviews: 189, description: 'Drone với camera 1 inch, video 6K, chế độ chụp ban đêm tuyệt vời.', features: ['6K', '40min', '1-inch CMOS', 'Night Mode'], modelType: 'drone', categoryId: 9, color: 0xf5576c }
+            { id: 1, name: 'iPhone 16 Pro Max', brand: 'Apple', code: 'APP-IP16PM-256', condition: 98, icon: '📱', price: 34990000, oldPrice: null, badge: 'new', badgeText: 'Mới', rating: 5.0, reviews: 4521, description: 'iPhone mạnh nhất với chip A18 Pro, màn hình 6.9 inch, camera 48MP.', features: ['A18 Pro', '48MP', '6.9" OLED', 'Titanium'], modelType: 'phone', categoryId: 1, color: 0xf5576c },
+            { id: 2, name: 'AirPods Pro Max', brand: 'Apple', code: 'APP-APM-2024', condition: 95, icon: '🎧', price: 14900000, oldPrice: 16900000, badge: 'sale', badgeText: '-12%', rating: 4.9, reviews: 2847, description: 'Tai nghe over-ear cao cấp với chip H2, chống ồn ANC, Spatial Audio.', features: ['Chip H2', 'ANC', 'Spatial Audio', '20h'], modelType: 'headphones', categoryId: 4, color: 0x667eea },
+            { id: 3, name: 'Apple Watch Ultra 2', brand: 'Apple', code: 'APP-AWU2-49', condition: 99, icon: '⌚', price: 19990000, oldPrice: 21990000, badge: 'sale', badgeText: '-9%', rating: 4.8, reviews: 1893, description: 'Đồng hồ thông minh cho thể thao mạo hiểm, GPS, 36h pin.', features: ['49mm', 'GPS', '36h pin', 'Ocean'], modelType: 'watch', categoryId: 3, color: 0x4facfe },
+            { id: 4, name: 'HomePod Max', brand: 'Apple', code: 'APP-HPM-WHT', condition: 100, icon: '🔊', price: 18900000, oldPrice: null, badge: 'hot', badgeText: 'Hot', rating: 4.7, reviews: 967, description: 'Loa thông minh cao cấp với âm thanh computed audio, Siri tích hợp.', features: ['Computational Audio', '7 Tweeters', 'Siri', 'Stereo'], modelType: 'speaker', categoryId: 7, color: 0xf093fb },
+            { id: 5, name: 'GoPro Hero 13', brand: 'GoPro', code: 'GPR-H13-BLK', condition: 96, icon: '📸', price: 12990000, oldPrice: 14990000, badge: 'sale', badgeText: '-13%', rating: 4.6, reviews: 1234, description: 'Camera hành động với video 5.3K, chống rung HyperSmooth 6.0.', features: ['5.3K60', 'HyperSmooth 6.0', 'Waterproof', 'HDR'], modelType: 'camera', categoryId: 5, color: 0x00d2ff },
+            { id: 6, name: 'DJI Mini 4 Pro', brand: 'DJI', code: 'DJI-M4P-GRY', condition: 97, icon: '🚁', price: 24990000, oldPrice: 27990000, badge: 'sale', badgeText: '-11%', rating: 4.9, reviews: 756, description: 'Drone nhỏ gọn dưới 250g với camera 4K/60fps, tránh vật cản 360°.', features: ['4K/60fps', '34min', '360°', 'Under 250g'], modelType: 'drone', categoryId: 9, color: 0x11998e },
+            { id: 7, name: 'Samsung S24 Ultra', brand: 'Samsung', code: 'SAM-S24U-256', condition: 98, icon: '📱', price: 27990000, oldPrice: 31990000, badge: 'sale', badgeText: '-13%', rating: 4.8, reviews: 3562, description: 'Flagship Samsung với S Pen, camera 200MP, AI features.', features: ['200MP', 'S Pen', 'Snapdragon 8', 'AI'], modelType: 'phone', categoryId: 1, color: 0xf5576c },
+            { id: 8, name: 'MacBook Pro M4', brand: 'Apple', code: 'APP-MBP-M4-16', condition: 100, icon: '💻', price: 45990000, oldPrice: null, badge: 'new', badgeText: 'Mới', rating: 5.0, reviews: 892, description: 'Laptop mạnh nhất với chip M4, màn hình Liquid Retina XDR.', features: ['M4 Chip', '32GB RAM', 'Liquid Retina', '22h pin'], modelType: 'laptop', categoryId: 2, color: 0x6e6e73 },
+            { id: 9, name: 'DJI Mavic 4 Pro', brand: 'DJI', code: 'DJI-M4PR-GRY', condition: 99, icon: '🚁', price: 34990000, oldPrice: 39990000, badge: 'sale', badgeText: '-13%', rating: 5.0, reviews: 534, description: 'Drone flagship với Hasselblad camera 4/3 inch, video 8K, thời gian bay 46 phút.', features: ['8K', '46min', '4/3 CMOS', '15km'], modelType: 'drone', categoryId: 9, color: 0x11998e },
+            { id: 10, name: 'DJI Air 4', brand: 'DJI', code: 'DJI-A4-WHT', condition: 100, icon: '🚁', price: 22990000, oldPrice: null, badge: 'new', badgeText: 'Mới', rating: 4.9, reviews: 312, description: 'Drone tầm trung với camera 1 inch, tránh vật cản omnidirectional, video 5.2K.', features: ['5.2K', '42min', '1-inch CMOS', 'APAS 5.0'], modelType: 'drone', categoryId: 9, color: 0x4facfe },
+            { id: 11, name: 'Autel EVO Lite+', brand: 'Autel', code: 'AUT-EVOL-WHT', condition: 97, icon: '🚁', price: 28990000, oldPrice: 32990000, badge: 'sale', badgeText: '-12%', rating: 4.8, reviews: 189, description: 'Drone với camera 1 inch, video 6K, chế độ chụp ban đêm tuyệt vời.', features: ['6K', '40min', '1-inch CMOS', 'Night Mode'], modelType: 'drone', categoryId: 9, color: 0xf5576c }
         ];
 
         // ==================== INITIALIZE ====================
@@ -1482,21 +1481,18 @@
                         </button>
                     </div>
                     <div class="product-info">
-                        <div class="product-brand">${p.brand}</div>
-                        <div class="product-name">${p.name}</div>
-                        <div class="product-desc">${p.description.substring(0, 80)}...</div>
-                        <div class="product-footer">
-                            <div class="product-price">
-                                <span class="price-current">${formatPrice(p.price)}đ</span>
-                                ${p.oldPrice ? `<span class="price-old">${formatPrice(p.oldPrice)}đ</span>` : ''}
-                            </div>
-                            <div class="product-rating">
-                                <span class="rating-stars">★</span>
-                                <span class="rating-count">${p.rating}</span>
-                            </div>
+                        <div class="product-meta">
+                            <span class="product-name">${p.name}</span>
+                            <span class="product-code">${p.code}</span>
                         </div>
-                        <div class="product-features">
-                            ${p.features.slice(0, 3).map(f => `<span>${f}</span>`).join('')}
+                        <div class="product-condition-row">
+                            <span class="condition-label">Ngoại hình</span>
+                            <span class="condition-value">${p.condition}%</span>
+                        </div>
+                        <div class="product-price-row">
+                            <span class="price-current">${formatPrice(p.price)}đ</span>
+                            ${p.oldPrice ? `<span class="price-old">${formatPrice(p.oldPrice)}đ</span>` : ''}
+                            ${p.oldPrice ? `<span class="price-discount">-${Math.round((1 - p.price/p.oldPrice)*100)}%</span>` : ''}
                         </div>
                     </div>
                 </div>
