@@ -473,15 +473,15 @@
     <!-- Header -->
     <header>
         <div class="header-main">
-            <a href="#" class="logo" onclick="navigate('home')">
+            <a href="/" class="logo" onclick="navigate('home'); return false;">
                 <div class="logo-icon">⚡</div>
                 TechVision
             </a>
             <nav class="nav-center">
-                <a href="#" class="active" onclick="navigate('home')">Trang chủ</a>
-                <a href="#" onclick="showPage('products')">Sản phẩm</a>
-                <a href="#" onclick="showPage('profile')">Tài khoản</a>
-                <a href="#" onclick="showPage('admin')">Admin</a>
+                <a href="/" class="active" onclick="navigate('home'); return false;">Trang chủ</a>
+                <a href="/products" onclick="navigate('products'); return false;">Sản phẩm</a>
+                <a href="/profile" onclick="navigate('profile'); return false;">Tài khoản</a>
+                <a href="/admin" onclick="navigate('admin'); return false;">Admin</a>
             </nav>
             <div class="header-actions">
                 <button class="header-btn" title="Tìm kiếm">
@@ -674,16 +674,330 @@
     <script>
         // ==================== CONFIG ====================
         const API_URL = 'https://techvision-api.onrender.com/api';
-        const CATEGORIES = [
-            { id: 1, name: 'Điện thoại', icon: '📱', count: 124 },
-            { id: 2, name: 'Laptop', icon: '💻', count: 86 },
-            { id: 3, name: 'Smartwatch', icon: '⌚', count: 52 },
-            { id: 4, name: 'Tai nghe', icon: '🎧', count: 78 },
-            { id: 5, name: 'Camera', icon: '📷', count: 34 },
-            { id: 6, name: 'Gaming', icon: '🎮', count: 156 },
-            { id: 7, name: 'Loa', icon: '🔊', count: 42 },
-            { id: 8, name: 'Phụ kiện', icon: '📦', count: 230 }
-        ];
+
+        // ==================== ROUTER ====================
+        // Maps URL paths to page names
+        const ROUTES = {
+            '/': 'home',
+            '/products': 'products',
+            '/profile': 'profile',
+            '/orders': 'orders',
+            '/wishlist': 'wishlist',
+            '/admin': 'admin',
+            '/login': 'login',
+            '/register': 'register',
+            '/forgot-password': 'forgotPassword',
+            '/reset-password': 'resetPassword',
+        };
+
+        let currentPage = 'home';
+        const pageContents = {}; // Cache rendered page HTML
+
+        function getRoute() {
+            const path = window.location.pathname;
+            return ROUTES[path] ? ROUTES[path] : 'home';
+        }
+
+        function navigate(page) {
+            // Find path for page name
+            const path = Object.keys(ROUTES).find(k => ROUTES[k] === page) || '/';
+            history.pushState({ page }, '', path);
+            renderPage(page);
+        }
+
+        function routerInit() {
+            // Handle browser back/forward
+            window.addEventListener('popstate', (e) => {
+                renderPage(e.state?.page || getRoute());
+            });
+
+            // Initial render
+            renderPage(getRoute());
+        }
+
+        function renderPage(page) {
+            currentPage = page;
+
+            // Update active nav link
+            document.querySelectorAll('.nav-center a').forEach(a => {
+                const href = a.getAttribute('href');
+                const isActive = Object.keys(ROUTES).find(k => ROUTES[k] === page && k === href);
+                a.classList.toggle('active', !!isActive);
+            });
+
+            const main = document.getElementById('mainContent');
+
+            switch (page) {
+                case 'home':
+                    main.innerHTML = getHomeContent();
+                    renderCategories();
+                    renderProducts();
+                    break;
+                case 'products':
+                    main.innerHTML = getProductsContent();
+                    renderCategories();
+                    renderProducts();
+                    break;
+                case 'profile':
+                    main.innerHTML = getProfileContent();
+                    break;
+                case 'orders':
+                    main.innerHTML = getOrdersContent();
+                    break;
+                case 'wishlist':
+                    main.innerHTML = getWishlistContent();
+                    break;
+                case 'admin':
+                    main.innerHTML = getAdminContent();
+                    break;
+                case 'login':
+                case 'register':
+                    showAuthModal(page === 'register' ? 'register' : 'login');
+                    break;
+                case 'forgotPassword':
+                    showForgotPassword();
+                    break;
+                case 'resetPassword':
+                    showResetPassword();
+                    break;
+                default:
+                    main.innerHTML = getHomeContent();
+                    renderCategories();
+                    renderProducts();
+            }
+
+            window.scrollTo(0, 0);
+        }
+
+        // ==================== PAGE TEMPLATES ====================
+        function getHomeContent() {
+            return `
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="hero-content">
+                <div class="hero-badge">✨ Công nghệ mới nhất 2026</div>
+                <h1>Khám phá thế giới<br>công nghệ đỉnh cao</h1>
+                <p>Trải nghiệm sản phẩm với công nghệ 3D tiên tiến. Xem, chọn, mua - tất cả trong tầm tay.</p>
+                <div class="hero-actions">
+                    <a href="/products" class="btn btn-primary" onclick="navigate('products'); return false;">Mua sắm ngay</a>
+                    <a href="/products" class="btn btn-secondary" onclick="navigate('products'); return false;">Tìm hiểu thêm →</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Stats -->
+        <div class="stats">
+            <div class="stats-grid">
+                <div class="stat-item"><div class="stat-number">50K+</div><div class="stat-label">Sản phẩm đã bán</div></div>
+                <div class="stat-item"><div class="stat-number">15K+</div><div class="stat-label">Khách hàng tin tưởng</div></div>
+                <div class="stat-item"><div class="stat-number">200+</div><div class="stat-label">Thương hiệu uy tín</div></div>
+                <div class="stat-item"><div class="stat-number">4.9★</div><div class="stat-label">Đánh giá trung bình</div></div>
+            </div>
+        </div>
+
+        <!-- Categories -->
+        <section class="section">
+            <div class="section-header">
+                <h2 class="section-title">Danh mục nổi bật</h2>
+                <a href="/products" class="section-link" onclick="navigate('products'); return false;">Xem tất cả →</a>
+            </div>
+            <div class="categories-scroll" id="categoriesGrid"></div>
+        </section>
+
+        <!-- Products -->
+        <section class="section" id="productsSection">
+            <div class="section-header">
+                <h2 class="section-title">Sản phẩm bán chạy</h2>
+                <a href="/products" class="section-link" onclick="navigate('products'); return false;">Xem tất cả →</a>
+            </div>
+            <div class="products-grid" id="productsGrid"></div>
+        </section>
+            `;
+        }
+
+        function getProductsContent() {
+            return `
+        <section class="section" style="margin-top: 40px;">
+            <div class="section-header">
+                <h2 class="section-title">Tất cả sản phẩm</h2>
+                <div style="display: flex; gap: 12px; align-items: center;">
+                    <select id="sortSelect" onchange="sortProducts()" style="padding: 10px 16px; border: 1px solid var(--border); border-radius: var(--radius-md); font-size: 0.9rem;">
+                        <option value="default">Sắp xếp: Mặc định</option>
+                        <option value="price-asc">Giá: Thấp → Cao</option>
+                        <option value="price-desc">Giá: Cao → Thấp</option>
+                        <option value="name">Tên A → Z</option>
+                    </select>
+                </div>
+            </div>
+            <div class="categories-scroll" id="categoriesGrid" style="margin-bottom: 32px;"></div>
+            <div class="products-grid" id="productsGrid"></div>
+        </section>
+            `;
+        }
+
+        function getProfileContent() {
+            if (!currentUser) {
+                return `
+        <section class="section" style="margin-top: 40px;">
+            <div class="profile-layout">
+                <div class="profile-content" style="text-align: center; padding: 80px;">
+                    <div class="profile-avatar" style="margin: 0 auto 24px;">👤</div>
+                    <h2 style="margin-bottom: 16px;">Vui lòng đăng nhập</h2>
+                    <p style="color: var(--text-secondary); margin-bottom: 24px;">Đăng nhập để xem thông tin tài khoản</p>
+                    <button class="btn btn-primary" onclick="navigate('login')">Đăng nhập</button>
+                </div>
+            </div>
+        </section>
+                `;
+            }
+            return `
+        <section class="section" style="margin-top: 40px;">
+            <div class="profile-layout">
+                <div class="profile-sidebar">
+                    <div class="profile-nav">
+                        <a href="#" class="active" onclick="showProfileTab('info'); return false;"><span>👤</span> Thông tin cá nhân</a>
+                        <a href="#" onclick="showProfileTab('orders'); return false;"><span>📦</span> Đơn hàng của tôi</a>
+                        <a href="#" onclick="showProfileTab('addresses'); return false;"><span>📍</span> Địa chỉ giao hàng</a>
+                        <a href="#" onclick="showProfileTab('password'); return false;"><span>🔑</span> Đổi mật khẩu</a>
+                        <a href="#" onclick="logout(); return false;" class="logout" style="color: var(--error);"><span>🚪</span> Đăng xuất</a>
+                    </div>
+                </div>
+                <div class="profile-content" id="profileContent">
+                    <div class="profile-header">
+                        <div class="profile-avatar">👤</div>
+                        <div class="profile-info">
+                            <h2>${currentUser.name || 'Người dùng'}</h2>
+                            <p>${currentUser.email || ''}</p>
+                        </div>
+                    </div>
+                    <form id="profileForm" onsubmit="saveProfile(event)">
+                        <div class="form-group">
+                            <label>Họ và tên</label>
+                            <input type="text" name="name" value="${currentUser.name || ''}" placeholder="Nhập họ và tên">
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" name="email" value="${currentUser.email || ''}" placeholder="Nhập email">
+                        </div>
+                        <div class="form-group">
+                            <label>Số điện thoại</label>
+                            <input type="tel" name="phone" value="${currentUser.phone || ''}" placeholder="Nhập số điện thoại">
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="margin-top: 16px;">Lưu thay đổi</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+            `;
+        }
+
+        function getOrdersContent() {
+            if (!currentUser) {
+                return `
+        <section class="section" style="margin-top: 40px; text-align: center; padding: 80px;">
+            <h2 style="margin-bottom: 16px;">Vui lòng đăng nhập</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 24px;">Đăng nhập để xem đơn hàng</p>
+            <button class="btn btn-primary" onclick="navigate('login')">Đăng nhập</button>
+        </section>
+                `;
+            }
+            return `
+        <section class="section" style="margin-top: 40px;">
+            <h2 style="margin-bottom: 32px;">📦 Đơn hàng của tôi</h2>
+            <div class="data-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Mã đơn</th>
+                            <th>Ngày đặt</th>
+                            <th>Sản phẩm</th>
+                            <th>Tổng tiền</th>
+                            <th>Trạng thái</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="5" style="text-align: center; padding: 40px; color: var(--text-secondary);">
+                                Chưa có đơn hàng nào
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+            `;
+        }
+
+        function getWishlistContent() {
+            if (!currentUser) {
+                return `
+        <section class="section" style="margin-top: 40px; text-align: center; padding: 80px;">
+            <h2 style="margin-bottom: 16px;">Vui lòng đăng nhập</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 24px;">Đăng nhập để xem danh sách yêu thích</p>
+            <button class="btn btn-primary" onclick="navigate('login')">Đăng nhập</button>
+        </section>
+                `;
+            }
+            return `
+        <section class="section" style="margin-top: 40px;">
+            <h2 style="margin-bottom: 32px;">❤️ Sản phẩm yêu thích</h2>
+            <div class="products-grid" id="wishlistGrid">
+                <div style="text-align: center; padding: 60px; color: var(--text-secondary); grid-column: 1/-1;">
+                    Chưa có sản phẩm yêu thích nào
+                </div>
+            </div>
+        </section>
+            `;
+        }
+
+        function getAdminContent() {
+            return `
+        <section class="section" style="margin-top: 40px;">
+            <h2 style="margin-bottom: 24px;">⚙️ Quản trị hệ thống</h2>
+            <div class="admin-stats">
+                <div class="admin-stat-card">
+                    <div class="icon">📦</div>
+                    <div class="value" id="statProducts">--</div>
+                    <div class="label">Sản phẩm</div>
+                </div>
+                <div class="admin-stat-card">
+                    <div class="icon">🛒</div>
+                    <div class="value" id="statOrders">--</div>
+                    <div class="label">Đơn hàng</div>
+                </div>
+                <div class="admin-stat-card">
+                    <div class="icon">👥</div>
+                    <div class="value" id="statUsers">--</div>
+                    <div class="label">Người dùng</div>
+                </div>
+                <div class="admin-stat-card">
+                    <div class="icon">💰</div>
+                    <div class="value" id="statRevenue">--</div>
+                    <div class="label">Doanh thu</div>
+                </div>
+            </div>
+            <div class="data-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Đơn hàng gần đây</th>
+                            <th>Khách hàng</th>
+                            <th>Tổng tiền</th>
+                            <th>Trạng thái</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recentOrders">
+                        <tr>
+                            <td colspan="4" style="text-align: center; padding: 40px; color: var(--text-secondary);">
+                                Đang tải...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+            `;
+        }
 
         // ==================== STATE ====================
         let currentUser = JSON.parse(localStorage.getItem('techvision_user') || 'null');
@@ -700,7 +1014,17 @@
         let is3DInitialized = false;
         let clock = new THREE.Clock();
 
-        // ==================== SAMPLE PRODUCTS ====================
+        // ==================== CATEGORIES ====================
+        const CATEGORIES = [
+            { id: 1, name: 'Điện thoại', icon: '📱', count: 124 },
+            { id: 2, name: 'Laptop', icon: '💻', count: 86 },
+            { id: 3, name: 'Smartwatch', icon: '⌚', count: 52 },
+            { id: 4, name: 'Tai nghe', icon: '🎧', count: 78 },
+            { id: 5, name: 'Camera', icon: '📷', count: 34 },
+            { id: 6, name: 'Gaming', icon: '🎮', count: 156 },
+            { id: 7, name: 'Loa', icon: '🔊', count: 42 },
+            { id: 8, name: 'Phụ kiện', icon: '📦', count: 230 }
+        ];
         const products = [
             { id: 1, name: 'iPhone 16 Pro Max', brand: 'Apple', icon: '📱', price: 34990000, oldPrice: null, badge: 'new', badgeText: 'Mới', rating: 5.0, reviews: 4521, description: 'iPhone mạnh nhất với chip A18 Pro, màn hình 6.9 inch, camera 48MP.', features: ['A18 Pro', '48MP', '6.9" OLED', 'Titanium'], modelType: 'phone', color: 0xf5576c },
             { id: 2, name: 'AirPods Pro Max', brand: 'Apple', icon: '🎧', price: 14900000, oldPrice: 16900000, badge: 'sale', badgeText: '-12%', rating: 4.9, reviews: 2847, description: 'Tai nghe over-ear cao cấp với chip H2, chống ồn ANC, Spatial Audio.', features: ['Chip H2', 'ANC', 'Spatial Audio', '20h'], modelType: 'headphones', color: 0x667eea },
@@ -714,10 +1038,9 @@
 
         // ==================== INITIALIZE ====================
         document.addEventListener('DOMContentLoaded', () => {
-            renderCategories();
-            renderProducts();
             updateAuthUI();
             updateCartUI();
+            routerInit();
             setTimeout(() => document.getElementById('loadingOverlay').style.display = 'none', 500);
         });
 
@@ -729,6 +1052,7 @@
         // ==================== RENDER ====================
         function renderCategories() {
             const grid = document.getElementById('categoriesGrid');
+            if (!grid) return;
             grid.innerHTML = CATEGORIES.map((cat, i) => `
                 <div class="category-card ${i === 0 ? 'active' : ''}" onclick="filterByCategory(${cat.id})">
                     <div class="category-icon">${cat.icon}</div>
@@ -740,6 +1064,7 @@
 
         function renderProducts() {
             const grid = document.getElementById('productsGrid');
+            if (!grid) return;
             grid.innerHTML = products.map(p => `
                 <div class="product-card" onclick="openProduct(${p.id})">
                     <div class="product-image">
@@ -789,7 +1114,7 @@
             document.getElementById('authTitle').textContent = tab === 'login' ? 'Đăng nhập' : 'Đăng ký';
         }
 
-        function handleAuth() {
+        async function handleAuth() {
             const email = document.getElementById('authEmail').value;
             const password = document.getElementById('authPassword').value;
             const isRegister = document.getElementById('authTitle').textContent === 'Đăng ký';
@@ -799,37 +1124,60 @@
                 return;
             }
 
-            // Simulate auth (in production, call API)
-            const user = {
-                id: 1,
-                name: email.split('@')[0],
-                email,
-                role: email.includes('admin') ? 'admin' : 'user'
-            };
+            try {
+                const endpoint = isRegister ? '/auth/register' : '/auth/login';
+                const payload = isRegister
+                    ? { email, password, name: email.split('@')[0], phone: '0000000000', address: '', city: '' }
+                    : { email, password };
 
-            localStorage.setItem('techvision_user', JSON.stringify(user));
-            localStorage.setItem('techvision_token', 'demo_token_' + Date.now());
-            currentUser = user;
-            updateAuthUI();
-            closeAuthModal();
-            showToast('success', 'Thành công', isRegister ? 'Đăng ký thành công!' : 'Đăng nhập thành công!');
+                const res = await fetch(`${API_URL}${endpoint}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                    showToast('error', 'Lỗi', data.message || 'Đã xảy ra lỗi!');
+                    return;
+                }
+
+                localStorage.setItem('techvision_token', data.data.token);
+                localStorage.setItem('techvision_refresh_token', data.data.refreshToken);
+                localStorage.setItem('techvision_user', JSON.stringify(data.data.user));
+                currentUser = data.data.user;
+                updateAuthUI();
+                closeAuthModal();
+                showToast('success', 'Thành công', isRegister ? 'Đăng ký thành công! Vui lòng xác minh email.' : 'Đăng nhập thành công!');
+
+                // If registering, show verify message
+                if (isRegister) {
+                    showToast('info', 'Xác minh', 'Vui lòng kiểm tra email để xác minh tài khoản.');
+                }
+            } catch (error) {
+                console.error('Auth error:', error);
+                showToast('error', 'Lỗi', 'Không thể kết nối máy chủ!');
+            }
         }
 
-        function googleLogin() {
-            showToast('info', 'Google', 'Đang kết nối Google...');
-            // In production: redirect to Google OAuth
+        async function googleLogin() {
+            // Redirect to backend OAuth
+            window.location.href = `${API_URL}/auth/google`;
         }
 
-        function facebookLogin() {
-            showToast('info', 'Facebook', 'Đang kết nối Facebook...');
-            // In production: redirect to Facebook OAuth
+        async function facebookLogin() {
+            // Redirect to backend OAuth
+            window.location.href = `${API_URL}/auth/facebook`;
         }
 
         function logout() {
             localStorage.removeItem('techvision_user');
             localStorage.removeItem('techvision_token');
+            localStorage.removeItem('techvision_refresh_token');
             currentUser = null;
             updateAuthUI();
+            navigate('home');
             showToast('success', 'Đăng xuất', 'Đã đăng xuất thành công!');
         }
 
@@ -1206,36 +1554,58 @@
             setTimeout(() => { toast.style.animation = 'slideIn 0.3s ease reverse'; setTimeout(() => toast.remove(), 300); }, 3000);
         }
 
+        // ==================== PROFILE HELPERS ====================
+        function showProfileTab(tab) {
+            document.querySelectorAll('.profile-nav a').forEach(a => a.classList.remove('active'));
+            event.target.closest('a').classList.add('active');
+            // Tab content switching would go here
+        }
+
+        function saveProfile(e) {
+            e.preventDefault();
+            showToast('success', 'Lưu', 'Thông tin đã được cập nhật!');
+        }
+
         // ==================== NAVIGATION ====================
         function navigate(page) {
-            showPage(page);
+            // Find path for page name
+            const path = Object.keys(ROUTES).find(k => ROUTES[k] === page) || '/';
+            history.pushState({ page }, '', path);
+            renderPage(page);
         }
 
         function showPage(page) {
-            const main = document.getElementById('mainContent');
             switch (page) {
                 case 'home':
-                    location.reload();
+                    navigate('home');
                     break;
                 case 'products':
-                    document.getElementById('productsSection').scrollIntoView({ behavior: 'smooth' });
+                    navigate('products');
                     break;
                 case 'orders':
-                    showToast('info', 'Đơn hàng', 'Chức năng đang phát triển...');
+                    if (!currentUser) {
+                        showAuthModal('login');
+                    } else {
+                        navigate('orders');
+                    }
                     break;
                 case 'wishlist':
-                    showToast('info', 'Yêu thích', 'Chức năng đang phát triển...');
+                    if (!currentUser) {
+                        showAuthModal('login');
+                    } else {
+                        navigate('wishlist');
+                    }
                     break;
                 case 'profile':
                     if (!currentUser) {
                         showAuthModal('login');
                     } else {
-                        showToast('info', 'Hồ sơ', `Xin chào ${currentUser.name}!`);
+                        navigate('profile');
                     }
                     break;
                 case 'admin':
                     if (currentUser && currentUser.role === 'admin') {
-                        showToast('info', 'Admin', 'Dashboard đang phát triển...');
+                        navigate('admin');
                     } else {
                         showToast('error', 'Admin', 'Bạn không có quyền truy cập!');
                     }
@@ -1246,7 +1616,54 @@
         function filterByCategory(id) {
             document.querySelectorAll('.category-card').forEach(c => c.classList.remove('active'));
             event.target.closest('.category-card').classList.add('active');
-            showToast('info', 'Lọc', 'Đang lọc sản phẩm...');
+            showToast('info', 'Lọc', 'Đang lọc sản phẩm theo danh mục...');
+        }
+
+        function sortProducts() {
+            const sort = document.getElementById('sortSelect').value;
+            showToast('info', 'Sắp xếp', `Đang sắp xếp theo: ${sort}`);
+        }
+
+        function showForgotPassword() {
+            const modal = document.getElementById('authModal');
+            document.getElementById('authTitle').textContent = 'Quên mật khẩu';
+            document.querySelector('.auth-tabs').style.display = 'none';
+            document.querySelector('.auth-form').innerHTML = `
+                <p style="color: var(--text-secondary); margin-bottom: 24px;">Nhập email để nhận link đặt lại mật khẩu</p>
+                <div class="form-group"><label>Email</label><input type="email" id="forgotEmail" placeholder="Nhập email của bạn"></div>
+                <button class="btn btn-primary" style="width:100%;margin-top:16px" onclick="handleForgotPassword()">Gửi link đặt lại</button>
+                <a href="#" class="forgot-link" onclick="showAuthModal('login'); return false;">← Quay lại đăng nhập</a>
+            `;
+            modal.classList.add('active');
+        }
+
+        async function handleForgotPassword() {
+            const email = document.getElementById('forgotEmail').value;
+            if (!email) {
+                showToast('error', 'Lỗi', 'Vui lòng nhập email!');
+                return;
+            }
+            try {
+                const res = await fetch(`${API_URL}/auth/forgot-password`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    showToast('success', 'Thành công', 'Đã gửi link đặt lại mật khẩu đến email của bạn!');
+                    setTimeout(() => showAuthModal('login'), 2000);
+                } else {
+                    showToast('error', 'Lỗi', data.message || 'Không thể gửi email!');
+                }
+            } catch (error) {
+                showToast('error', 'Lỗi', 'Không thể kết nối máy chủ!');
+            }
+        }
+
+        function showResetPassword() {
+            // Would be called if user arrives via reset link
+            showToast('info', 'Đặt lại mật khẩu', 'Vui lòng nhập mật khẩu mới');
         }
     </script>
 </body>

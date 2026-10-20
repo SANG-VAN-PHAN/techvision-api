@@ -97,6 +97,12 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../public/index.html'));
 });
 
+// ==================== CLIENT-SIDE ROUTING ====================
+// Serve index.html for all non-API routes (SPA fallback)
+app.get(/^\/(?!api\/).*/i, (req, res) => {
+    res.sendFile(path.join(__dirname, '../public/index.html'));
+});
+
 // ==================== API ROUTES ====================
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
