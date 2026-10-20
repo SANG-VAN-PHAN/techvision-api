@@ -547,8 +547,8 @@
                     </button>
                     <div class="user-dropdown" id="userDropdown">
                         <div id="loggedOutMenu">
-                            <a href="#" onclick="showAuthModal('login')"><span>🔑</span> Đăng nhập</a>
-                            <a href="#" onclick="showAuthModal('register')"><span>📝</span> Đăng ký</a>
+                            <a href="/login" onclick="navigate('login'); return false;"><span>🔑</span> Đăng nhập</a>
+                            <a href="/register" onclick="navigate('register'); return false;"><span>📝</span> Đăng ký</a>
                         </div>
                         <div id="loggedInMenu" class="hidden">
                             <a href="#" onclick="showPage('profile')"><span>👤</span> Hồ sơ</a>
@@ -631,7 +631,7 @@
                 </div>
                 <div class="form-group"><label>Email</label><input type="email" id="authEmail" placeholder="Nhập email của bạn"></div>
                 <div class="form-group"><label>Mật khẩu</label><input type="password" id="authPassword" placeholder="Nhập mật khẩu"></div>
-                <a href="#" class="forgot-link" onclick="showForgotPassword()">Quên mật khẩu?</a>
+                <a href="/forgot-password" class="forgot-link" onclick="navigate('forgotPassword'); return false;">Quên mật khẩu?</a>
                 <button class="btn btn-primary" style="width:100%;margin-top:16px" onclick="handleAuth()">Đăng nhập</button>
             </div>
         </div>
@@ -841,10 +841,10 @@
                     main.innerHTML = getRegisterContent();
                     break;
                 case 'forgotPassword':
-                    showForgotPassword();
+                    main.innerHTML = getForgotPasswordContent();
                     break;
                 case 'resetPassword':
-                    showResetPassword();
+                    main.innerHTML = getResetPasswordContent();
                     break;
                 case 'authCallback':
                     // OAuth callback handled in routerInit
@@ -1045,6 +1045,128 @@
                 showToast('error', 'Lỗi', 'Không thể kết nối máy chủ!');
                 btn.disabled = false;
                 btn.innerHTML = '<span>Đăng ký</span>';
+            }
+        }
+
+        // ==================== FORGOT / RESET PASSWORD PAGES ====================
+        function getForgotPasswordContent() {
+            document.getElementById('authModal')?.classList.remove('active');
+            return `
+        <section class="auth-page">
+            <div class="auth-container">
+                <div class="auth-card">
+                    <div class="auth-header">
+                        <h1>Quên mật khẩu?</h1>
+                        <p>Nhập email để nhận link đặt lại mật khẩu</p>
+                    </div>
+                    <form class="auth-form-page" onsubmit="handleForgotPasswordForm(event)">
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" id="forgotEmail" placeholder="Nhập email của bạn" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-full" id="forgotBtn">
+                            <span>Gửi link đặt lại</span>
+                        </button>
+                    </form>
+                    <div class="auth-back">
+                        <a href="/login" onclick="navigate('login'); return false;">← Quay lại đăng nhập</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+            `;
+        }
+
+        function getResetPasswordContent() {
+            document.getElementById('authModal')?.classList.remove('active');
+            const token = new URLSearchParams(window.location.search).get('token') || '';
+            return `
+        <section class="auth-page">
+            <div class="auth-container">
+                <div class="auth-card">
+                    <div class="auth-header">
+                        <h1>Đặt lại mật khẩu</h1>
+                        <p>Nhập mật khẩu mới cho tài khoản của bạn</p>
+                    </div>
+                    <form class="auth-form-page" onsubmit="handleResetPasswordForm(event)">
+                        <input type="hidden" id="resetToken" value="${token}">
+                        <div class="form-group">
+                            <label>Mật khẩu mới</label>
+                            <input type="password" id="newPassword" placeholder="Tối thiểu 6 ký tự" minlength="6" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Xác nhận mật khẩu</label>
+                            <input type="password" id="confirmNewPassword" placeholder="Nhập lại mật khẩu" minlength="6" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-full" id="resetBtn">
+                            <span>Đặt lại mật khẩu</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </section>
+            `;
+        }
+
+        async function handleForgotPasswordForm(e) {
+            e.preventDefault();
+            const email = document.getElementById('forgotEmail').value;
+            const btn = document.getElementById('forgotBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span>Đang gửi...</span>';
+            try {
+                const res = await fetch(`${API_URL}/auth/forgot-password`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                    showToast('error', 'Lỗi', data.message || 'Không thể gửi email!');
+                    btn.disabled = false;
+                    btn.innerHTML = '<span>Gửi link đặt lại</span>';
+                    return;
+                }
+                showToast('success', 'Thành công', 'Đã gửi link đặt lại mật khẩu đến email!');
+                setTimeout(() => navigate('login'), 2000);
+            } catch (err) {
+                showToast('error', 'Lỗi', 'Không thể kết nối máy chủ!');
+                btn.disabled = false;
+                btn.innerHTML = '<span>Gửi link đặt lại</span>';
+            }
+        }
+
+        async function handleResetPasswordForm(e) {
+            e.preventDefault();
+            const token = document.getElementById('resetToken').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirm = document.getElementById('confirmNewPassword').value;
+            const btn = document.getElementById('resetBtn');
+            if (newPassword !== confirm) {
+                showToast('error', 'Lỗi', 'Mật khẩu xác nhận không khớp!');
+                return;
+            }
+            btn.disabled = true;
+            btn.innerHTML = '<span>Đang xử lý...</span>';
+            try {
+                const res = await fetch(`${API_URL}/auth/reset-password`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token, password: newPassword })
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                    showToast('error', 'Lỗi', data.message || 'Đặt lại mật khẩu thất bại!');
+                    btn.disabled = false;
+                    btn.innerHTML = '<span>Đặt lại mật khẩu</span>';
+                    return;
+                }
+                showToast('success', 'Thành công', 'Mật khẩu đã được đặt lại!');
+                navigate('login');
+            } catch (err) {
+                showToast('error', 'Lỗi', 'Không thể kết nối máy chủ!');
+                btn.disabled = false;
+                btn.innerHTML = '<span>Đặt lại mật khẩu</span>';
             }
         }
 
@@ -1545,7 +1667,7 @@
 
         function checkout() {
             if (!currentUser) {
-                showAuthModal('login');
+                navigate('login');
                 return;
             }
             if (cart.length === 0) {
@@ -1860,25 +1982,13 @@
                     navigate('products');
                     break;
                 case 'orders':
-                    if (!currentUser) {
-                        showAuthModal('login');
-                    } else {
-                        navigate('orders');
-                    }
+                    if (!currentUser) { navigate('login'); } else { navigate('orders'); }
                     break;
                 case 'wishlist':
-                    if (!currentUser) {
-                        showAuthModal('login');
-                    } else {
-                        navigate('wishlist');
-                    }
+                    if (!currentUser) { navigate('login'); } else { navigate('wishlist'); }
                     break;
                 case 'profile':
-                    if (!currentUser) {
-                        showAuthModal('login');
-                    } else {
-                        navigate('profile');
-                    }
+                    if (!currentUser) { navigate('login'); } else { navigate('profile'); }
                     break;
                 case 'admin':
                     if (currentUser && currentUser.role === 'admin') {
@@ -1901,47 +2011,7 @@
             showToast('info', 'Sắp xếp', `Đang sắp xếp theo: ${sort}`);
         }
 
-        function showForgotPassword() {
-            const modal = document.getElementById('authModal');
-            document.getElementById('authTitle').textContent = 'Quên mật khẩu';
-            document.querySelector('.auth-tabs').style.display = 'none';
-            document.querySelector('.auth-form').innerHTML = `
-                <p style="color: var(--text-secondary); margin-bottom: 24px;">Nhập email để nhận link đặt lại mật khẩu</p>
-                <div class="form-group"><label>Email</label><input type="email" id="forgotEmail" placeholder="Nhập email của bạn"></div>
-                <button class="btn btn-primary" style="width:100%;margin-top:16px" onclick="handleForgotPassword()">Gửi link đặt lại</button>
-                <a href="#" class="forgot-link" onclick="showAuthModal('login'); return false;">← Quay lại đăng nhập</a>
-            `;
-            modal.classList.add('active');
-        }
-
-        async function handleForgotPassword() {
-            const email = document.getElementById('forgotEmail').value;
-            if (!email) {
-                showToast('error', 'Lỗi', 'Vui lòng nhập email!');
-                return;
-            }
-            try {
-                const res = await fetch(`${API_URL}/auth/forgot-password`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email })
-                });
-                const data = await res.json();
-                if (res.ok) {
-                    showToast('success', 'Thành công', 'Đã gửi link đặt lại mật khẩu đến email của bạn!');
-                    setTimeout(() => showAuthModal('login'), 2000);
-                } else {
-                    showToast('error', 'Lỗi', data.message || 'Không thể gửi email!');
-                }
-            } catch (error) {
-                showToast('error', 'Lỗi', 'Không thể kết nối máy chủ!');
-            }
-        }
-
-        function showResetPassword() {
-            // Would be called if user arrives via reset link
-            showToast('info', 'Đặt lại mật khẩu', 'Vui lòng nhập mật khẩu mới');
-        }
+        // Các hàm auth đã được chuyển sang standalone pages (getForgotPasswordContent, getResetPasswordContent)
     </script>
 </body>
 </html>
