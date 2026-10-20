@@ -23,11 +23,29 @@ const generateTokens = (user) => {
     return { token, refreshToken };
 };
 
+// ==================== OAUTH AVAILABILITY ====================
+// OAuth được bật khi có đủ credentials trong env vars.
+// Chưa cấu hình thì trả về thông báo rõ ràng thay vì lỗi 404/500.
+const googleOAuthEnabled = () =>
+    Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET);
+
+const facebookOAuthEnabled = () =>
+    Boolean(process.env.FACEBOOK_APP_ID && process.env.FACEBOOK_APP_SECRET);
+
+const oauthNotConfigured = (provider) => ({
+    status: 'error',
+    message: `${provider} chưa được cấu hình. Vui lòng đăng nhập bằng email/mật khẩu.`
+});
+
 // ==================== GOOGLE OAUTH ====================
 
 // Step 1: Redirect to Google consent screen
 // GET /api/auth/google
 router.get('/google', (req, res) => {
+    if (!googleOAuthEnabled()) {
+        return res.status(503).json(oauthNotConfigured('Đăng nhập Google'));
+    }
+
     const scopes = [
         'https://www.googleapis.com/auth/userinfo.email',
         'https://www.googleapis.com/auth/userinfo.profile'
@@ -45,6 +63,10 @@ router.get('/google', (req, res) => {
 // Step 2: Google redirects back with code
 // GET /api/auth/google/callback
 router.get('/google/callback', asyncHandler(async (req, res) => {
+    if (!googleOAuthEnabled()) {
+        return res.status(503).json(oauthNotConfigured('Đăng nhập Google'));
+    }
+
     const { code, error } = req.query;
 
     if (error) {
@@ -114,6 +136,10 @@ router.get('/google/callback', asyncHandler(async (req, res) => {
 // Step 1: Redirect to Facebook consent screen
 // GET /api/auth/facebook
 router.get('/facebook', (req, res) => {
+    if (!facebookOAuthEnabled()) {
+        return res.status(503).json(oauthNotConfigured('Đăng nhập Facebook'));
+    }
+
     const redirectUri = `${process.env.BASE_URL || 'https://techvision-api.onrender.com'}/api/auth/facebook/callback`;
     const scope = 'email,public_profile';
 
@@ -125,6 +151,10 @@ router.get('/facebook', (req, res) => {
 // Step 2: Facebook redirects back with code
 // GET /api/auth/facebook/callback
 router.get('/facebook/callback', asyncHandler(async (req, res) => {
+    if (!facebookOAuthEnabled()) {
+        return res.status(503).json(oauthNotConfigured('Đăng nhập Facebook'));
+    }
+
     const { code, error } = req.query;
 
     if (error) {
