@@ -1425,14 +1425,14 @@
             { id: 8, name: 'Phụ kiện', icon: '📦', count: 230 }
         ];
         const products = [
-            { id: 1, name: 'iPhone 16 Pro Max', brand: 'Apple', icon: '📱', price: 34990000, oldPrice: null, badge: 'new', badgeText: 'Mới', rating: 5.0, reviews: 4521, description: 'iPhone mạnh nhất với chip A18 Pro, màn hình 6.9 inch, camera 48MP.', features: ['A18 Pro', '48MP', '6.9" OLED', 'Titanium'], modelType: 'phone', color: 0xf5576c },
-            { id: 2, name: 'AirPods Pro Max', brand: 'Apple', icon: '🎧', price: 14900000, oldPrice: 16900000, badge: 'sale', badgeText: '-12%', rating: 4.9, reviews: 2847, description: 'Tai nghe over-ear cao cấp với chip H2, chống ồn ANC, Spatial Audio.', features: ['Chip H2', 'ANC', 'Spatial Audio', '20h'], modelType: 'headphones', color: 0x667eea },
-            { id: 3, name: 'Apple Watch Ultra 2', brand: 'Apple', icon: '⌚', price: 19990000, oldPrice: 21990000, badge: 'sale', badgeText: '-9%', rating: 4.8, reviews: 1893, description: 'Đồng hồ thông minh cho thể thao mạo hiểm, GPS, 36h pin.', features: ['49mm', 'GPS', '36h pin', 'Ocean'], modelType: 'watch', color: 0x4facfe },
-            { id: 4, name: 'HomePod Max', brand: 'Apple', icon: '🔊', price: 18900000, oldPrice: null, badge: 'hot', badgeText: 'Hot', rating: 4.7, reviews: 967, description: 'Loa thông minh cao cấp với âm thanh computed audio, Siri tích hợp.', features: ['Computational Audio', '7 Tweeters', 'Siri', 'Stereo'], modelType: 'speaker', color: 0xf093fb },
-            { id: 5, name: 'GoPro Hero 13', brand: 'GoPro', icon: '📸', price: 12990000, oldPrice: 14990000, badge: 'sale', badgeText: '-13%', rating: 4.6, reviews: 1234, description: 'Camera hành động với video 5.3K, chống rung HyperSmooth 6.0.', features: ['5.3K60', 'HyperSmooth 6.0', 'Waterproof', 'HDR'], modelType: 'camera', color: 0x00d2ff },
-            { id: 6, name: 'DJI Mini 4 Pro', brand: 'DJI', icon: '🚁', price: 24990000, oldPrice: 27990000, badge: 'sale', badgeText: '-11%', rating: 4.9, reviews: 756, description: 'Drone nhỏ gọn dưới 250g với camera 4K/60fps, tránh vật cản 360°.', features: ['4K/60fps', '34min', '360°', 'Under 250g'], modelType: 'drone', color: 0x11998e },
-            { id: 7, name: 'Samsung S24 Ultra', brand: 'Samsung', icon: '📱', price: 27990000, oldPrice: 31990000, badge: 'sale', badgeText: '-13%', rating: 4.8, reviews: 3562, description: 'Flagship Samsung với S Pen, camera 200MP, AI features.', features: ['200MP', 'S Pen', 'Snapdragon 8', 'AI'], modelType: 'phone', color: 0xf5576c },
-            { id: 8, name: 'MacBook Pro M4', brand: 'Apple', icon: '💻', price: 45990000, oldPrice: null, badge: 'new', badgeText: 'Mới', rating: 5.0, reviews: 892, description: 'Laptop mạnh nhất với chip M4, màn hình Liquid Retina XDR.', features: ['M4 Chip', '32GB RAM', 'Liquid Retina', '22h pin'], modelType: 'laptop', color: 0x6e6e73 }
+            { id: 1, name: 'iPhone 16 Pro Max', brand: 'Apple', icon: '📱', price: 34990000, oldPrice: null, badge: 'new', badgeText: 'Mới', rating: 5.0, reviews: 4521, description: 'iPhone mạnh nhất với chip A18 Pro, màn hình 6.9 inch, camera 48MP.', features: ['A18 Pro', '48MP', '6.9" OLED', 'Titanium'], modelType: 'phone', categoryId: 1, color: 0xf5576c },
+            { id: 2, name: 'AirPods Pro Max', brand: 'Apple', icon: '🎧', price: 14900000, oldPrice: 16900000, badge: 'sale', badgeText: '-12%', rating: 4.9, reviews: 2847, description: 'Tai nghe over-ear cao cấp với chip H2, chống ồn ANC, Spatial Audio.', features: ['Chip H2', 'ANC', 'Spatial Audio', '20h'], modelType: 'headphones', categoryId: 4, color: 0x667eea },
+            { id: 3, name: 'Apple Watch Ultra 2', brand: 'Apple', icon: '⌚', price: 19990000, oldPrice: 21990000, badge: 'sale', badgeText: '-9%', rating: 4.8, reviews: 1893, description: 'Đồng hồ thông minh cho thể thao mạo hiểm, GPS, 36h pin.', features: ['49mm', 'GPS', '36h pin', 'Ocean'], modelType: 'watch', categoryId: 3, color: 0x4facfe },
+            { id: 4, name: 'HomePod Max', brand: 'Apple', icon: '🔊', price: 18900000, oldPrice: null, badge: 'hot', badgeText: 'Hot', rating: 4.7, reviews: 967, description: 'Loa thông minh cao cấp với âm thanh computed audio, Siri tích hợp.', features: ['Computational Audio', '7 Tweeters', 'Siri', 'Stereo'], modelType: 'speaker', categoryId: 7, color: 0xf093fb },
+            { id: 5, name: 'GoPro Hero 13', brand: 'GoPro', icon: '📸', price: 12990000, oldPrice: 14990000, badge: 'sale', badgeText: '-13%', rating: 4.6, reviews: 1234, description: 'Camera hành động với video 5.3K, chống rung HyperSmooth 6.0.', features: ['5.3K60', 'HyperSmooth 6.0', 'Waterproof', 'HDR'], modelType: 'camera', categoryId: 5, color: 0x00d2ff },
+            { id: 6, name: 'DJI Mini 4 Pro', brand: 'DJI', icon: '🚁', price: 24990000, oldPrice: 27990000, badge: 'sale', badgeText: '-11%', rating: 4.9, reviews: 756, description: 'Drone nhỏ gọn dưới 250g với camera 4K/60fps, tránh vật cản 360°.', features: ['4K/60fps', '34min', '360°', 'Under 250g'], modelType: 'drone', categoryId: 5, color: 0x11998e },
+            { id: 7, name: 'Samsung S24 Ultra', brand: 'Samsung', icon: '📱', price: 27990000, oldPrice: 31990000, badge: 'sale', badgeText: '-13%', rating: 4.8, reviews: 3562, description: 'Flagship Samsung với S Pen, camera 200MP, AI features.', features: ['200MP', 'S Pen', 'Snapdragon 8', 'AI'], modelType: 'phone', categoryId: 1, color: 0xf5576c },
+            { id: 8, name: 'MacBook Pro M4', brand: 'Apple', icon: '💻', price: 45990000, oldPrice: null, badge: 'new', badgeText: 'Mới', rating: 5.0, reviews: 892, description: 'Laptop mạnh nhất với chip M4, màn hình Liquid Retina XDR.', features: ['M4 Chip', '32GB RAM', 'Liquid Retina', '22h pin'], modelType: 'laptop', categoryId: 2, color: 0x6e6e73 }
         ];
 
         // ==================== INITIALIZE ====================
@@ -1464,7 +1464,9 @@
         function renderProducts() {
             const grid = document.getElementById('productsGrid');
             if (!grid) return;
-            grid.innerHTML = products.map(p => `
+            const filtered = getFilteredProducts();
+            grid.innerHTML = filtered.length
+                ? filtered.map(p => `
                 <div class="product-card" onclick="openProduct(${p.id})">
                     <div class="product-image">
                         <div class="product-badges">
@@ -1494,7 +1496,11 @@
                         </div>
                     </div>
                 </div>
-            `).join('');
+            `).join('')
+                : `<div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--text-secondary)">
+                    <div style="font-size:3rem;margin-bottom:16px">🔍</div>
+                    <p>Không có sản phẩm nào trong danh mục này.</p>
+                   </div>`;
         }
 
         // ==================== AUTH ====================
@@ -1999,15 +2005,34 @@
             }
         }
 
+        // ==================== FILTER & SORT ====================
+        let activeCategory = 0; // 0 = all
+        let activeSort = 'default';
+
         function filterByCategory(id) {
             document.querySelectorAll('.category-card').forEach(c => c.classList.remove('active'));
             event.target.closest('.category-card').classList.add('active');
-            showToast('info', 'Lọc', 'Đang lọc sản phẩm theo danh mục...');
+            activeCategory = id;
+            renderProducts();
         }
 
         function sortProducts() {
-            const sort = document.getElementById('sortSelect').value;
-            showToast('info', 'Sắp xếp', `Đang sắp xếp theo: ${sort}`);
+            activeSort = document.getElementById('sortSelect').value;
+            renderProducts();
+        }
+
+        function getFilteredProducts() {
+            let filtered = activeCategory === 0
+                ? [...products]
+                : products.filter(p => p.categoryId === activeCategory);
+
+            switch (activeSort) {
+                case 'price-asc':  filtered.sort((a, b) => a.price - b.price); break;
+                case 'price-desc': filtered.sort((a, b) => b.price - a.price); break;
+                case 'name':       filtered.sort((a, b) => a.name.localeCompare(b.name)); break;
+                case 'rating':     filtered.sort((a, b) => b.rating - a.rating); break;
+            }
+            return filtered;
         }
 
         // Các hàm auth đã được chuyển sang standalone pages (getForgotPasswordContent, getResetPasswordContent)
