@@ -323,6 +323,53 @@
         .social-btn.facebook { }
         .forgot-link { display: block; text-align: right; color: var(--primary); font-size: 0.9rem; margin-top: -12px; }
 
+        /* ========== AUTH PAGE (standalone, not modal) ========== */
+        .auth-page {
+            min-height: calc(100vh - 80px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            background: var(--background);
+        }
+        .auth-container { width: 100%; max-width: 440px; }
+        .auth-card {
+            background: white;
+            border-radius: var(--radius-lg);
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            padding: 48px 40px;
+        }
+        .auth-header { text-align: center; margin-bottom: 32px; }
+        .auth-header h1 { font-size: 1.75rem; font-weight: 700; margin-bottom: 8px; }
+        .auth-header p { color: var(--text-secondary); font-size: 0.95rem; }
+        .auth-form .form-group { margin-bottom: 20px; }
+        .auth-form .form-group label { display: block; font-weight: 500; margin-bottom: 8px; font-size: 0.9rem; }
+        .auth-form .form-group input {
+            width: 100%; padding: 14px 16px; border: 1px solid var(--border); border-radius: var(--radius-md);
+            font-size: 1rem; transition: var(--transition);
+        }
+        .auth-form .form-group input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(0,102,255,0.1); outline: none; }
+        .form-link { text-align: right; margin-bottom: 24px; }
+        .form-link a { color: var(--primary); font-size: 0.9rem; text-decoration: none; }
+        .form-link a:hover { text-decoration: underline; }
+        .form-check { display: flex; align-items: center; gap: 10px; margin-bottom: 24px; }
+        .form-check input { width: 18px; height: 18px; accent-color: var(--primary); }
+        .form-check label { font-size: 0.9rem; color: var(--text-secondary); }
+        .form-check label a { color: var(--primary); text-decoration: none; }
+        .form-check label a:hover { text-decoration: underline; }
+        .btn-full { width: 100%; padding: 16px; font-size: 1rem; }
+        .auth-divider { text-align: center; position: relative; margin: 24px 0; }
+        .auth-divider::before {
+            content: ''; position: absolute; top: 50%; left: 0; right: 0; height: 1px;
+            background: var(--border); z-index: 0;
+        }
+        .auth-divider span {
+            position: relative; background: white; padding: 0 16px; color: var(--text-secondary); font-size: 0.9rem;
+        }
+        .auth-footer { text-align: center; color: var(--text-secondary); font-size: 0.95rem; }
+        .auth-footer a { color: var(--primary); font-weight: 600; text-decoration: none; }
+        .auth-footer a:hover { text-decoration: underline; }
+
         /* ========== CART DRAWER ========== */
         .cart-drawer {
             position: fixed; top: 0; right: 0; width: 420px; max-width: 100%; height: 100%;
@@ -788,8 +835,10 @@
                     main.innerHTML = getAdminContent();
                     break;
                 case 'login':
+                    main.innerHTML = getLoginContent();
+                    break;
                 case 'register':
-                    showAuthModal(page === 'register' ? 'register' : 'login');
+                    main.innerHTML = getRegisterContent();
                     break;
                 case 'forgotPassword':
                     showForgotPassword();
@@ -810,6 +859,195 @@
         }
 
         // ==================== PAGE TEMPLATES ====================
+
+        // ==================== AUTH PAGES ====================
+        function getLoginContent() {
+            return `
+        <section class="auth-page">
+            <div class="auth-container">
+                <div class="auth-card">
+                    <div class="auth-header">
+                        <h1>Chào mừng trở lại</h1>
+                        <p>Đăng nhập để tiếp tục mua sắm</p>
+                    </div>
+
+                    <form class="auth-form" onsubmit="handleLoginForm(event)">
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" id="loginEmail" placeholder="Nhập email của bạn" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Mật khẩu</label>
+                            <input type="password" id="loginPassword" placeholder="Nhập mật khẩu" required>
+                        </div>
+                        <div class="form-link">
+                            <a href="/forgot-password" onclick="navigate('forgotPassword'); return false;">Quên mật khẩu?</a>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-full" id="loginBtn">
+                            <span>Đăng nhập</span>
+                        </button>
+                    </form>
+
+                    <div class="auth-divider">
+                        <span>hoặc</span>
+                    </div>
+
+                    <div class="social-login" id="socialLoginRow">
+                        <button class="social-btn google" onclick="googleLogin()"></button>
+                        <button class="social-btn facebook hidden" onclick="facebookLogin()"></button>
+                    </div>
+
+                    <div class="auth-footer">
+                        Chưa có tài khoản?
+                        <a href="/register" onclick="navigate('register'); return false;">Đăng ký ngay</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+            `;
+        }
+
+        function getRegisterContent() {
+            return `
+        <section class="auth-page">
+            <div class="auth-container">
+                <div class="auth-card">
+                    <div class="auth-header">
+                        <h1>Tạo tài khoản mới</h1>
+                        <p>Đăng ký để bắt đầu mua sắm</p>
+                    </div>
+
+                    <form class="auth-form" onsubmit="handleRegisterForm(event)">
+                        <div class="form-group">
+                            <label>Họ và tên</label>
+                            <input type="text" id="registerName" placeholder="Nhập họ và tên" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" id="registerEmail" placeholder="Nhập email của bạn" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Số điện thoại</label>
+                            <input type="tel" id="registerPhone" placeholder="Nhập số điện thoại" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Mật khẩu</label>
+                            <input type="password" id="registerPassword" placeholder="Tối thiểu 6 ký tự" minlength="6" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Xác nhận mật khẩu</label>
+                            <input type="password" id="registerConfirm" placeholder="Nhập lại mật khẩu" minlength="6" required>
+                        </div>
+                        <div class="form-check">
+                            <input type="checkbox" id="agreeTerms" required>
+                            <label for="agreeTerms">Tôi đồng ý với <a href="#">Điều khoản sử dụng</a></label>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-full" id="registerBtn">
+                            <span>Đăng ký</span>
+                        </button>
+                    </form>
+
+                    <div class="auth-divider">
+                        <span>hoặc</span>
+                    </div>
+
+                    <div class="social-login" id="socialLoginRow">
+                        <button class="social-btn google" onclick="googleLogin()"></button>
+                        <button class="social-btn facebook hidden" onclick="facebookLogin()"></button>
+                    </div>
+
+                    <div class="auth-footer">
+                        Đã có tài khoản?
+                        <a href="/login" onclick="navigate('login'); return false;">Đăng nhập ngay</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+            `;
+        }
+
+        // Form handlers cho auth pages
+        async function handleLoginForm(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const btn = document.getElementById('loginBtn');
+
+            btn.disabled = true;
+            btn.innerHTML = '<span>Đang đăng nhập...</span>';
+
+            try {
+                const res = await fetch(`${API_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await res.json();
+
+                if (!res.ok) {
+                    showToast('error', 'Lỗi', data.message || 'Đăng nhập thất bại!');
+                    btn.disabled = false;
+                    btn.innerHTML = '<span>Đăng nhập</span>';
+                    return;
+                }
+
+                localStorage.setItem('techvision_token', data.data.token);
+                localStorage.setItem('techvision_refresh_token', data.data.refreshToken);
+                localStorage.setItem('techvision_user', JSON.stringify(data.data.user));
+                currentUser = data.data.user;
+                updateAuthUI();
+                showToast('success', 'Thành công', 'Đăng nhập thành công!');
+                navigate('home');
+            } catch (err) {
+                console.error('Login error:', err);
+                showToast('error', 'Lỗi', 'Không thể kết nối máy chủ!');
+                btn.disabled = false;
+                btn.innerHTML = '<span>Đăng nhập</span>';
+            }
+        }
+
+        async function handleRegisterForm(e) {
+            e.preventDefault();
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const phone = document.getElementById('registerPhone').value;
+            const password = document.getElementById('registerPassword').value;
+            const confirm = document.getElementById('registerConfirm').value;
+            const btn = document.getElementById('registerBtn');
+
+            if (password !== confirm) {
+                showToast('error', 'Lỗi', 'Mật khẩu xác nhận không khớp!');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<span>Đang đăng ký...</span>';
+
+            try {
+                const res = await fetch(`${API_URL}/auth/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, phone, password })
+                });
+                const data = await res.json();
+
+                if (!res.ok) {
+                    showToast('error', 'Lỗi', data.message || 'Đăng ký thất bại!');
+                    btn.disabled = false;
+                    btn.innerHTML = '<span>Đăng ký</span>';
+                    return;
+                }
+
+                showToast('success', 'Thành công', 'Đăng ký thành công! Vui lòng xác minh email.');
+                navigate('login');
+            } catch (err) {
+                console.error('Register error:', err);
+                showToast('error', 'Lỗi', 'Không thể kết nối máy chủ!');
+                btn.disabled = false;
+                btn.innerHTML = '<span>Đăng ký</span>';
+            }
+        }
+
         function getHomeContent() {
             return `
         <!-- Hero Section -->
