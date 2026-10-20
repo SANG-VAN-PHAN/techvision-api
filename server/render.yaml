@@ -22,14 +22,22 @@ services:
       # MongoDB Atlas - ADD YOUR OWN
       - key: MONGODB_URI
         sync: false  # Set in Render dashboard
-      
-      # JWT - ADD YOUR OWN  
+
+      # JWT - ADD YOUR OWN
       - key: JWT_SECRET
         sync: false  # Set in Render dashboard
-      
+
+      # Resend Email (https://resend.com) - Get free API key
+      - key: RESEND_API_KEY
+        sync: false  # Set in Render dashboard
+
+      # Email sender
+      - key: FROM_EMAIL
+        value: TechVision <onboarding@resend.dev>
+
       - key: JWT_EXPIRES_IN
         value: 7d
-      
+
       # Frontend URL (CORS)
       - key: FRONTEND_URL
         value: https://your-frontend.onrender.com

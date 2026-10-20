@@ -6,22 +6,36 @@ const User = require('../models/User');
 const { AppError, asyncHandler } = require('../middleware/errorHandler');
 const { OAuth2Client } = require('google-auth-library');
 const crypto = require('crypto');
+const { Resend } = require('resend');
 
 // Google OAuth Client
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
-// Send verification email (stub - implement with nodemailer/sendgrid in production)
+// Resend email client
+const resend = process.env.RESEND_API_KEY
+    ? new Resend(process.env.RESEND_API_KEY)
+    : null;
+
+const FROM_EMAIL = process.env.FROM_EMAIL || 'TechVision <onboarding@resend.dev>';
+
+// Send email via Resend (falls back to console log in dev)
 const sendEmail = async ({ to, subject, html }) => {
-    // TODO: Replace with real email service (nodemailer, sendgrid, resend, etc.)
-    if (process.env.NODE_ENV === 'development') {
-        console.log('\n========== [DEV EMAIL] ==========');
+    if (resend && process.env.NODE_ENV === 'production') {
+        // Real send in production
+        await resend.emails.send({
+            from: FROM_EMAIL,
+            to,
+            subject,
+            html
+        });
+    } else if (process.env.NODE_ENV === 'development' || !resend) {
+        // Dev: log to console
+        console.log('\n========== [EMAIL] ==========');
         console.log(`To: ${to}`);
         console.log(`Subject: ${subject}`);
         console.log(`Body:\n${html}`);
-        console.log('==================================\n');
+        console.log('=============================\n');
     }
-    // In production: use nodemailer
-    // await sendWithNodemailer({ to, subject, html });
 };
 
 // Email verification URL (override via FRONTEND_URL env)
