@@ -688,6 +688,7 @@
             '/register': 'register',
             '/forgot-password': 'forgotPassword',
             '/reset-password': 'resetPassword',
+            '/auth-callback': 'authCallback',
         };
 
         let currentPage = 'home';
@@ -711,8 +712,44 @@
                 renderPage(e.state?.page || getRoute());
             });
 
+            // Check for OAuth callback params
+            const params = new URLSearchParams(window.location.search);
+            if (params.has('token') && params.has('user')) {
+                handleOAuthCallback();
+                return;
+            }
+
             // Initial render
             renderPage(getRoute());
+        }
+
+        function handleOAuthCallback() {
+            const params = new URLSearchParams(window.location.search);
+            const token = params.get('token');
+            const refreshToken = params.get('refreshToken');
+            const userJson = params.get('user');
+
+            if (token && userJson) {
+                try {
+                    const user = JSON.parse(userJson);
+                    localStorage.setItem('techvision_token', token);
+                    localStorage.setItem('techvision_refresh_token', refreshToken);
+                    localStorage.setItem('techvision_user', JSON.stringify(user));
+                    currentUser = user;
+                    updateAuthUI();
+
+                    // Clear URL params
+                    history.replaceState({}, '', '/');
+
+                    showToast('success', 'Đăng nhập thành công!', `Chào mừng ${user.name}!`);
+                    navigate('home');
+                } catch (e) {
+                    showToast('error', 'Lỗi', 'Xác thực thất bại!');
+                    navigate('home');
+                }
+            } else {
+                navigate('home');
+            }
         }
 
         function renderPage(page) {
@@ -759,6 +796,9 @@
                     break;
                 case 'resetPassword':
                     showResetPassword();
+                    break;
+                case 'authCallback':
+                    // OAuth callback handled in routerInit
                     break;
                 default:
                     main.innerHTML = getHomeContent();

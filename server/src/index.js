@@ -15,6 +15,7 @@ const connectDB = require('./config/database');
 
 // Import routes
 const authRoutes = require('./routes/auth');
+const oauthRoutes = require('./routes/oauth');
 const userRoutes = require('./routes/users');
 const productRoutes = require('./routes/products');
 const categoryRoutes = require('./routes/categories');
@@ -105,6 +106,7 @@ app.get(/^\/(?!api\/).*/i, (req, res) => {
 
 // ==================== API ROUTES ====================
 app.use('/api/auth', authRoutes);
+app.use('/api/auth', oauthRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/categories', categoryRoutes);

@@ -31,6 +31,20 @@ services:
       - key: RESEND_API_KEY
         sync: false  # Set in Render dashboard
 
+      # OAuth Credentials
+      - key: GOOGLE_CLIENT_ID
+        sync: false  # Set in Render dashboard
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false  # Set in Render dashboard
+      - key: GOOGLE_REDIRECT_URI
+        value: https://techvision-api.onrender.com/api/auth/google/callback
+      - key: FACEBOOK_APP_ID
+        sync: false  # Set in Render dashboard
+      - key: FACEBOOK_APP_SECRET
+        sync: false  # Set in Render dashboard
+      - key: BASE_URL
+        value: https://techvision-api.onrender.com
+
       # SMTP - Brevo (gửi đến mọi người, không cần verify domain)
       # https://app.brevo.com/settings/keys/smtp
       - key: SMTP_HOST
@@ -51,7 +65,7 @@ services:
 
       # Frontend URL (CORS + link xác minh email)
       - key: FRONTEND_URL
-        value: https://your-frontend.onrender.com
+        value: https://techvision-api.onrender.com
 
 # Free tier limits:
 # - 750 hours/month
