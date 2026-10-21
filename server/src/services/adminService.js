@@ -21,7 +21,8 @@ const setupAdmin = async () => {
                 password: adminPassword,
                 name: 'Administrator',
                 role: 'admin',
-                isActive: true
+                isActive: true,
+                isEmailVerified: true
             });
             console.log('✅ Admin account created');
             console.log(`   Email: ${adminEmail}`);
