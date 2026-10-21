@@ -12,6 +12,7 @@ const rateLimit = require('express-rate-limit');
 const path = require('path');
 // ==================== DATABASE CONFIG ====================
 const connectDB = require('./config/database');
+const { setupAdmin } = require('./services/adminService');
 
 // Import routes
 const authRoutes = require('./routes/auth');
@@ -151,6 +152,7 @@ const PORT = process.env.PORT || 5000;
 
 const startServer = async () => {
     await connectDB();
+    await setupAdmin();
     
     app.listen(PORT, () => {
         console.log(`
