@@ -23,7 +23,7 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"admin@techvision.vn\",\n  \"password\": \"admin123\"\n}"
+              "raw": "{\n  \"email\": \"admin@techvision.vn\",\n  \"password\": \"Admin@2026\"\n}"
             },
             "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
           }
@@ -195,3 +195,4 @@
     }
   ]
 }
+
