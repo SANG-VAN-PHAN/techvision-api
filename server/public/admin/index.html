@@ -153,6 +153,92 @@
             </div>
         </div>
 
+        <!-- Product Item Edit Modal -->
+<div class="modal fade" id="product-item-edit-modal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-pencil me-2"></i>Chỉnh sửa máy</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="edit-item-id">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Serial/IMEI</label>
+                        <input type="text" class="form-control" id="edit-item-serial">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">IMEI 2</label>
+                        <input type="text" class="form-control" id="edit-item-imei2">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Sản phẩm</label>
+                        <select class="form-select" id="edit-item-product"></select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Chi nhánh</label>
+                        <select class="form-select" id="edit-item-branch"></select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Tình trạng (%)</label>
+                        <input type="number" class="form-control" id="edit-item-condition-rate" min="0" max="100">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">% Pin</label>
+                        <input type="number" class="form-control" id="edit-item-battery" min="0" max="100">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Màu sắc</label>
+                        <input type="text" class="form-control" id="edit-item-color">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Giá bán</label>
+                        <input type="number" class="form-control" id="edit-item-sale-price">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Giá thuê/ngày</label>
+                        <input type="number" class="form-control" id="edit-item-rental-price">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Giá thuê cọc</label>
+                        <input type="number" class="form-control" id="edit-item-rental-deposit">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Trạng thái</label>
+                        <select class="form-select" id="edit-item-status">
+                            <option value="available">Available</option>
+                            <option value="reserved">Reserved</option>
+                            <option value="sold">Sold</option>
+                            <option value="rented">Rented</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-check mt-4">
+                            <input class="form-check-input" type="checkbox" id="edit-item-for-sale">
+                            <label class="form-check-label" for="edit-item-for-sale">Cho bán</label>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-check mt-4">
+                            <input class="form-check-input" type="checkbox" id="edit-item-for-rent">
+                            <label class="form-check-label" for="edit-item-for-rent">Cho thuê</label>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Ghi chú</label>
+                        <textarea class="form-control" id="edit-item-notes" rows="2"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary" onclick="saveProductItem()"><i class="bi bi-check-lg me-1"></i>Lưu</button>
+            </div>
+        </div>
+    </div>
+</div>
+
         <!-- Rentals Page -->
         <div id="page-rentals" class="page d-none">
             <h4 class="mb-4"><i class="bi bi-calendar-event me-2"></i>Quản lý đơn thuê</h4>
@@ -483,7 +569,65 @@
         async function appraiseBuyback(id) { const price = prompt('Nhập giá ước tính:'); if(price) { await api(`/buyback/${id}/estimate`, {method:'PATCH', body: JSON.stringify({estimatedPrice:Number(price), appraisalNotes:'Đã định giá'})}); loadBuyback(); showToast('Đã gửi báo giá'); }}
         async function approveConsignment(id) { await api(`/consignments/${id}/approve`, {method:'PATCH'}); loadConsignments(); showToast('Đã duyệt ký gửi'); }
         async function markConsignmentSold(id) { await api(`/consignments/${id}/sold`, {method:'PATCH'}); loadConsignments(); showToast('Đã đánh dấu bán'); }
-        function editProductItem(id) { showToast('Chức năng sửa đang phát triển'); }
+        async function editProductItem(id) {
+    const res = await api('/product-items/' + id);
+    const item = res.data.item;
+    
+    document.getElementById('edit-item-id').value = item._id;
+    document.getElementById('edit-item-serial').value = item.serialNumber || '';
+    document.getElementById('edit-item-imei2').value = item.imei || '';
+    document.getElementById('edit-item-condition-rate').value = item.conditionRate || '';
+    document.getElementById('edit-item-battery').value = item.batteryHealth || '';
+    document.getElementById('edit-item-color').value = item.color || '';
+    document.getElementById('edit-item-sale-price').value = item.salePrice || '';
+    document.getElementById('edit-item-rental-price').value = item.rentalPricePerDay || '';
+    document.getElementById('edit-item-rental-deposit').value = item.rentalDeposit || '';
+    document.getElementById('edit-item-status').value = item.status || 'available';
+    document.getElementById('edit-item-notes').value = item.conditionNote || '';
+    document.getElementById('edit-item-for-sale').checked = item.forSale || false;
+    document.getElementById('edit-item-for-rent').checked = item.forRent || false;
+    
+    // Load products dropdown
+    const prodRes = await api('/products?limit=100');
+    document.getElementById('edit-item-product').innerHTML = prodRes.data.products.map(p => 
+        `<option value="${p._id}" ${item.product?._id === p._id ? 'selected' : ''}>${p.name}</option>`
+    ).join('');
+    
+    // Load branches dropdown
+    const branchRes = await api('/branches');
+    document.getElementById('edit-item-branch').innerHTML = branchRes.data.branches.map(b => 
+        `<option value="${b._id}" ${item.branch?._id === b._id ? 'selected' : ''}>${b.name}</option>`
+    ).join('');
+    
+    new bootstrap.Modal(document.getElementById('product-item-edit-modal')).show();
+}
+
+async function saveProductItem() {
+    const id = document.getElementById('edit-item-id').value;
+    const data = {
+        serialNumber: document.getElementById('edit-item-serial').value,
+        imei: document.getElementById('edit-item-imei2').value,
+        product: document.getElementById('edit-item-product').value,
+        branch: document.getElementById('edit-item-branch').value,
+        conditionRate: Number(document.getElementById('edit-item-condition-rate').value),
+        batteryHealth: Number(document.getElementById('edit-item-battery').value),
+        color: document.getElementById('edit-item-color').value,
+        salePrice: Number(document.getElementById('edit-item-sale-price').value),
+        rentalPricePerDay: Number(document.getElementById('edit-item-rental-price').value),
+        rentalDeposit: Number(document.getElementById('edit-item-rental-deposit').value),
+        status: document.getElementById('edit-item-status').value,
+        conditionNote: document.getElementById('edit-item-notes').value,
+        forSale: document.getElementById('edit-item-for-sale').checked,
+        forRent: document.getElementById('edit-item-for-rent').checked
+    };
+    
+    try {
+        await api('/product-items/' + id, { method: 'PUT', body: JSON.stringify(data) });
+        bootstrap.Modal.getInstance(document.getElementById('product-item-edit-modal')).hide();
+        loadProductItems();
+        showToast('Đã lưu thay đổi!');
+    } catch (e) { showToast(e.message, 'danger'); }
+}
 
         // Logout
         function logout() { localStorage.removeItem('token'); window.location.href = 'login.html'; }
