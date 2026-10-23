@@ -25,17 +25,30 @@ const generateTokens = (user) => {
 };
 
 // ==================== OAUTH AVAILABILITY ====================
-// OAuth được bật khi có đủ credentials trong env vars.
-// Chưa cấu hình thì trả về thông báo rõ ràng thay vì lỗi 404/500.
+// OAuth được bật khi có đủ credentials thật trong env vars.
+// Phải loại trừ placeholder (your_google_client_id...) vì chúng là chuỗi
+// non-empty nên Boolean() vẫn trả true, dẫn tới Google trả lỗi invalid_client.
+const PLACEHOLDER_RE = /^your[_-]|^your |xxx|changeme|placeholder/i;
+const isRealSecret = (v) => Boolean(v) && !PLACEHOLDER_RE.test(v.trim());
+
 const googleOAuthEnabled = () =>
-    Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET);
+    isRealSecret(process.env.GOOGLE_CLIENT_ID) && isRealSecret(process.env.GOOGLE_CLIENT_SECRET);
 
 const facebookOAuthEnabled = () =>
-    Boolean(process.env.FACEBOOK_APP_ID && process.env.FACEBOOK_APP_SECRET);
+    isRealSecret(process.env.FACEBOOK_APP_ID) && isRealSecret(process.env.FACEBOOK_APP_SECRET);
 
 const oauthNotConfigured = (provider) => ({
     status: 'error',
     message: `${provider} chưa được cấu hình. Vui lòng đăng nhập bằng email/mật khẩu.`
+});
+
+// GET /api/auth/oauth/providers
+// Frontend gọi để ẩn/hiện nút đăng nhập social cho phù hợp cấu hình thực tế
+router.get('/oauth/providers', (req, res) => {
+    res.json({
+        status: 'success',
+        data: { google: googleOAuthEnabled(), facebook: facebookOAuthEnabled() }
+    });
 });
 
 // ==================== GOOGLE OAUTH ====================

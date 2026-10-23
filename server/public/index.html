@@ -1448,6 +1448,7 @@
             updateAuthUI();
             updateCartUI();
             routerInit();
+            initSocialLogin();
             setTimeout(() => document.getElementById('loadingOverlay').style.display = 'none', 500);
         });
 
@@ -1578,6 +1579,28 @@
 
         function facebookLogin() {
             showToast('info', 'Facebook', 'Đăng nhập Facebook đang được phát triển. Vui lòng dùng email/mật khẩu.');
+        }
+
+        // Ẩn nút đăng nhập social nào chưa được cấu hình ở backend
+        async function initSocialLogin() {
+            try {
+                const res = await fetch(`${API_URL}/auth/oauth/providers`);
+                const data = await res.json();
+                const providers = data.data || {};
+                document.querySelectorAll('.social-btn.google').forEach(b =>
+                    b.classList.toggle('hidden', !providers.google));
+                document.querySelectorAll('.social-btn.facebook').forEach(b =>
+                    b.classList.toggle('hidden', !providers.facebook));
+                // ẩn luôn cả hàng nếu không còn nút social nào hiển thị
+                document.querySelectorAll('.social-login').forEach(row => {
+                    const visible = [...row.querySelectorAll('.social-btn')]
+                        .some(b => !b.classList.contains('hidden'));
+                    row.classList.toggle('hidden', !visible);
+                });
+            } catch (e) {
+                // Không gọi được API thì ẩn hết cho an toàn
+                document.querySelectorAll('.social-login').forEach(r => r.classList.add('hidden'));
+            }
         }
 
         function logout() {
