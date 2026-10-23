@@ -33,6 +33,9 @@
         <ul class="nav flex-column mt-2">
             <li class="nav-item"><a href="#" class="nav-link active" data-page="dashboard"><i class="bi bi-grid-1x2"></i> Dashboard</a></li>
             <li class="nav-item"><a href="#" class="nav-link" data-page="products"><i class="bi bi-box-seam"></i> Sản phẩm</a></li>
+            <li class="nav-item"><a href="#" class="nav-link" data-page="categories"><i class="bi bi-tags"></i> Danh mục</a></li>
+            <li class="nav-item"><a href="#" class="nav-link" data-page="coupons"><i class="bi bi-percent"></i> Mã giảm giá</a></li>
+            <li class="nav-item"><a href="#" class="nav-link" data-page="reviews"><i class="bi bi-star"></i> Đánh giá</a></li>
             <li class="nav-item"><a href="#" class="nav-link" data-page="product-items"><i class="bi bi-upc-scan"></i> Từng máy (IMEI)</a></li>
             <li class="nav-item"><a href="#" class="nav-link" data-page="orders"><i class="bi bi-cart3"></i> Đơn hàng</a></li>
             <li class="nav-item"><a href="#" class="nav-link" data-page="rentals"><i class="bi bi-calendar-event"></i> Đơn thuê</a></li>
@@ -153,7 +156,265 @@
             </div>
         </div>
 
-        <!-- Product Item Edit Modal -->
+        <!-- Category Modal -->
+<div class="modal fade" id="category-modal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-tags me-2"></i><span id="category-modal-title">Thêm danh mục</span></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="edit-category-id">
+                <div class="mb-3">
+                    <label class="form-label">Tên danh mục <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="edit-category-name" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Icon</label>
+                    <input type="text" class="form-control" id="edit-category-icon" placeholder="VD: 📱">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Mô tả</label>
+                    <textarea class="form-control" id="edit-category-desc" rows="2"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Thứ tự hiển thị</label>
+                    <input type="number" class="form-control" id="edit-category-order" value="0">
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="edit-category-active" checked>
+                    <label class="form-check-label" for="edit-category-active">Hiển thị trên menu</label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary" onclick="saveCategory()"><i class="bi bi-check-lg me-1"></i>Lưu</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Coupon Modal -->
+<div class="modal fade" id="coupon-modal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-percent me-2"></i><span id="coupon-modal-title">Tạo mã giảm giá</span></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="edit-coupon-id">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Mã <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control text-uppercase" id="edit-coupon-code" placeholder="VD: SALE20">
+                    </div>
+                    <div class="col-md-8">
+                        <label class="form-label">Tên chiến dịch <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="edit-coupon-name">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Loại</label>
+                        <select class="form-select" id="edit-coupon-type">
+                            <option value="percentage">Phần trăm (%)</option>
+                            <option value="fixed">Số tiền cố định</option>
+                            <option value="free_shipping">Miễn phí vận chuyển</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Giá trị</label>
+                        <input type="number" class="form-control" id="edit-coupon-value" value="0">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Giảm tối đa</label>
+                        <input type="number" class="form-control" id="edit-coupon-max-discount" placeholder="Không giới hạn">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Đơn tối thiểu</label>
+                        <input type="number" class="form-control" id="edit-coupon-min-order" value="0">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Giới hạn lượt dùng</label>
+                        <input type="number" class="form-control" id="edit-coupon-usage-limit" placeholder="Không giới hạn">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Mỗi user tối đa</label>
+                        <input type="number" class="form-control" id="edit-coupon-per-user" value="1">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Ngày bắt đầu</label>
+                        <input type="date" class="form-control" id="edit-coupon-start">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Ngày kết thúc <span class="text-danger">*</span></label>
+                        <input type="date" class="form-control" id="edit-coupon-end">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Mô tả</label>
+                        <textarea class="form-control" id="edit-coupon-desc" rows="2"></textarea>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-check mt-2">
+                            <input class="form-check-input" type="checkbox" id="edit-coupon-active" checked>
+                            <label class="form-check-label" for="edit-coupon-active">Kích hoạt</label>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-check mt-2">
+                            <input class="form-check-input" type="checkbox" id="edit-coupon-public" checked>
+                            <label class="form-check-label" for="edit-coupon-public">Hiển thị công khai</label>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-check mt-2">
+                            <input class="form-check-input" type="checkbox" id="edit-coupon-first-order">
+                            <label class="form-check-label" for="edit-coupon-first-order">Chỉ đơn đầu tiên</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary" onclick="saveCoupon()"><i class="bi bi-check-lg me-1"></i>Lưu</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Product Modal -->
+<div class="modal fade" id="product-modal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-box-seam me-2"></i><span id="product-modal-title">Thêm sản phẩm</span></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="edit-product-id">
+                <div class="row g-3">
+                    <div class="col-md-8">
+                        <label class="form-label">Tên sản phẩm <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="edit-product-name">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">SKU <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control text-uppercase" id="edit-product-sku">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Danh mục <span class="text-danger">*</span></label>
+                        <select class="form-select" id="edit-product-category"></select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Thương hiệu</label>
+                        <input type="text" class="form-control" id="edit-product-brand">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Giá bán <span class="text-danger">*</span></label>
+                        <input type="number" class="form-control" id="edit-product-price">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Giá gốc</label>
+                        <input type="number" class="form-control" id="edit-product-original-price">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Giá vốn</label>
+                        <input type="number" class="form-control" id="edit-product-cost">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Số lượng kho</label>
+                        <input type="number" class="form-control" id="edit-product-stock" value="0">
+                    </div>
+                    <div class="col-md-8">
+                        <label class="form-label">Ảnh chính (URL)</label>
+                        <input type="text" class="form-control" id="edit-product-thumbnail" placeholder="https://...">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Mô tả ngắn</label>
+                        <textarea class="form-control" id="edit-product-short-desc" rows="2"></textarea>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Mô tả chi tiết <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="edit-product-desc" rows="4"></textarea>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-check mt-2">
+                            <input class="form-check-input" type="checkbox" id="edit-product-active" checked>
+                            <label class="form-check-label" for="edit-product-active">Đang bán</label>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-check mt-2">
+                            <input class="form-check-input" type="checkbox" id="edit-product-featured">
+                            <label class="form-check-label" for="edit-product-featured">Nổi bật</label>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-check mt-2">
+                            <input class="form-check-input" type="checkbox" id="edit-product-new">
+                            <label class="form-check-label" for="edit-product-new">Mới về</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary" onclick="saveProduct()"><i class="bi bi-check-lg me-1"></i>Lưu</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Branch Modal -->
+<div class="modal fade" id="branch-modal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-geo-alt me-2"></i><span id="branch-modal-title">Thêm chi nhánh</span></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="edit-branch-id">
+                <div class="mb-3">
+                    <label class="form-label">Tên chi nhánh <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="edit-branch-name">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Số điện thoại <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="edit-branch-phone">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Địa chỉ <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="edit-branch-address">
+                </div>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Thành phố <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="edit-branch-city">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Quận/Huyện</label>
+                        <input type="text" class="form-control" id="edit-branch-district">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Giờ làm việc</label>
+                        <input type="text" class="form-control" id="edit-branch-hours" value="8:00 - 21:00">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" id="edit-branch-email">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary" onclick="saveBranch()"><i class="bi bi-check-lg me-1"></i>Lưu</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Product Item Edit Modal -->
 <div class="modal fade" id="product-item-edit-modal" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -239,6 +500,51 @@
     </div>
 </div>
 
+        <!-- Categories Page -->
+        <div id="page-categories" class="page d-none">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="mb-0"><i class="bi bi-tags me-2"></i>Quản lý danh mục</h4>
+                <button class="btn btn-primary" onclick="openCategoryModal()"><i class="bi bi-plus-lg"></i> Thêm danh mục</button>
+            </div>
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <table class="table table-hover">
+                        <thead><tr><th>Icon</th><th>Tên</th><th>Slug</th><th>Mô tả</th><th>Thứ tự</th><th>Sản phẩm</th><th>Hiển thị</th><th>Thao tác</th></tr></thead>
+                        <tbody id="table-categories"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Coupons Page -->
+        <div id="page-coupons" class="page d-none">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="mb-0"><i class="bi bi-percent me-2"></i>Quản lý mã giảm giá</h4>
+                <button class="btn btn-primary" onclick="openCouponModal()"><i class="bi bi-plus-lg"></i> Tạo mã</button>
+            </div>
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <table class="table table-hover">
+                        <thead><tr><th>Mã</th><th>Tên</th><th>Loại</th><th>Giá trị</th><th>Đơn tối thiểu</th><th>Đã dùng</th><th>Hạn dùng</th><th>Trạng thái</th><th>Thao tác</th></tr></thead>
+                        <tbody id="table-coupons"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reviews Page -->
+        <div id="page-reviews" class="page d-none">
+            <h4 class="mb-4"><i class="bi bi-star me-2"></i>Quản lý đánh giá</h4>
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <table class="table table-hover">
+                        <thead><tr><th>Sản phẩm</th><th>Người đánh giá</th><th>Rating</th><th>Nội dung</th><th>Ngày</th><th>Duyệt</th><th>Thao tác</th></tr></thead>
+                        <tbody id="table-reviews"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
         <!-- Rentals Page -->
         <div id="page-rentals" class="page d-none">
             <h4 class="mb-4"><i class="bi bi-calendar-event me-2"></i>Quản lý đơn thuê</h4>
@@ -302,13 +608,32 @@
 
         <!-- Products Page -->
         <div id="page-products" class="page d-none">
-            <h4 class="mb-4"><i class="bi bi-box-seam me-2"></i>Quản lý sản phẩm</h4>
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="mb-0"><i class="bi bi-box-seam me-2"></i>Quản lý sản phẩm</h4>
+                <button class="btn btn-primary" onclick="openProductModal()"><i class="bi bi-plus-lg"></i> Thêm sản phẩm</button>
+            </div>
             <div class="card border-0 shadow-sm">
                 <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-3">
+                            <input type="text" class="form-control" id="filter-product-search" placeholder="Tìm tên sản phẩm..." onkeyup="loadProducts()">
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select" id="filter-product-category" onchange="loadProducts()"><option value="">Tất cả danh mục</option></select>
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select" id="filter-product-status" onchange="loadProducts()">
+                                <option value="">Tất cả trạng thái</option>
+                                <option value="active">Đang bán</option>
+                                <option value="inactive">Tạm ẩn</option>
+                            </select>
+                        </div>
+                    </div>
                     <table class="table table-hover">
-                        <thead><tr><th>Hình</th><th>Tên</th><th>Danh mục</th><th>Giá</th><th>Kho</th><th>Nổi bật</th></tr></thead>
+                        <thead><tr><th>Hình</th><th>Tên</th><th>Danh mục</th><th>Giá</th><th>Kho</th><th>Nổi bật</th><th>Thao tác</th></tr></thead>
                         <tbody id="table-products"></tbody>
                     </table>
+                    <nav><ul class="pagination justify-content-end" id="pagination-products"></ul></nav>
                 </div>
             </div>
         </div>
@@ -331,10 +656,15 @@
             <h4 class="mb-4"><i class="bi bi-people me-2"></i>Người dùng</h4>
             <div class="card border-0 shadow-sm">
                 <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-4"><input type="text" class="form-control" id="filter-user-search" placeholder="Tìm tên/email..." onkeyup="loadUsers()"></div>
+                        <div class="col-md-3"><select class="form-select" id="filter-user-role" onchange="loadUsers()"><option value="">Tất cả vai trò</option><option value="admin">Admin</option><option value="staff">Nhân viên</option><option value="customer">Khách hàng</option></select></div>
+                    </div>
                     <table class="table table-hover">
-                        <thead><tr><th>Tên</th><th>Email</th><th>Điện thoại</th><th>Vai trò</th><th>Ngày tạo</th></tr></thead>
+                        <thead><tr><th>Tên</th><th>Email</th><th>Điện thoại</th><th>Vai trò</th><th>Trạng thái</th><th>Ngày tạo</th><th>Thao tác</th></tr></thead>
                         <tbody id="table-users"></tbody>
                     </table>
+                    <nav><ul class="pagination justify-content-end" id="pagination-users"></ul></nav>
                 </div>
             </div>
         </div>
@@ -360,6 +690,13 @@
             const html = `<div id="${id}" class="toast align-items-center text-bg-${type} border-0" role="alert"><div class="d-flex"><div class="toast-body">${msg}</div><button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button></div></div>`;
             document.getElementById('toast-container').insertAdjacentHTML('beforeend', html);
             bootstrap.Toast.getOrCreateInstance(document.getElementById(id)).show();
+        }
+
+        // Generic modal helper
+        function showModal(id) {
+            const el = document.getElementById(id);
+            if (!el) { showToast('Tính năng đang phát triển', 'warning'); return; }
+            bootstrap.Modal.getOrCreateInstance(el).show();
         }
 
         // API helper
@@ -397,6 +734,9 @@
                     case 'posts': await loadPosts(); break;
                     case 'branches': await loadBranches(); break;
                     case 'products': await loadProducts(); break;
+                    case 'categories': await loadCategories(); break;
+                    case 'coupons': await loadCoupons(); break;
+                    case 'reviews': await loadReviews(); break;
                     case 'orders': await loadOrders(); break;
                     case 'users': await loadUsers(); break;
                 }
@@ -517,21 +857,406 @@
         async function loadBranches() {
             const res = await api('/branches');
             document.getElementById('branches-grid').innerHTML = res.data.branches.map(b => `<div class="col-md-4 mb-3">
-                <div class="card h-100"><div class="card-body"><h6>${b.name}</h6><p class="mb-1"><i class="bi bi-telephone me-1"></i>${b.phone}</p><p class="mb-1"><i class="bi bi-geo-alt me-1"></i>${b.address}</p><p class="mb-0 text-muted">${b.city}</p></div></div>
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <h6 class="mb-2">${b.name}</h6>
+                            <div>
+                                <button class="btn btn-sm btn-outline-primary" onclick="openBranchModal('${b._id}')"><i class="bi bi-pencil"></i></button>
+                                <button class="btn btn-sm btn-outline-danger" onclick="deleteBranch('${b._id}')"><i class="bi bi-trash"></i></button>
+                            </div>
+                        </div>
+                        <p class="mb-1"><i class="bi bi-telephone me-1"></i>${b.phone}</p>
+                        <p class="mb-1"><i class="bi bi-geo-alt me-1"></i>${b.address}</p>
+                        <p class="mb-0 text-muted">${b.city}${b.district ? ' - ' + b.district : ''}</p>
+                    </div>
+                </div>
             </div>`).join('');
         }
 
+        async function openBranchModal(id = null) {
+            document.getElementById('edit-branch-id').value = id || '';
+            document.getElementById('branch-modal-title').textContent = id ? 'Sửa chi nhánh' : 'Thêm chi nhánh';
+            document.getElementById('edit-branch-name').value = '';
+            document.getElementById('edit-branch-phone').value = '';
+            document.getElementById('edit-branch-address').value = '';
+            document.getElementById('edit-branch-city').value = '';
+            document.getElementById('edit-branch-district').value = '';
+            document.getElementById('edit-branch-hours').value = '8:00 - 21:00';
+            document.getElementById('edit-branch-email').value = '';
+
+            if (id) {
+                const res = await api('/branches');
+                const b = res.data.branches.find(x => x._id === id);
+                if (b) {
+                    document.getElementById('edit-branch-name').value = b.name || '';
+                    document.getElementById('edit-branch-phone').value = b.phone || '';
+                    document.getElementById('edit-branch-address').value = b.address || '';
+                    document.getElementById('edit-branch-city').value = b.city || '';
+                    document.getElementById('edit-branch-district').value = b.district || '';
+                    document.getElementById('edit-branch-hours').value = b.workingHours || '8:00 - 21:00';
+                    document.getElementById('edit-branch-email').value = b.email || '';
+                }
+            }
+            showModal('branch-modal');
+        }
+
+        async function saveBranch() {
+            const id = document.getElementById('edit-branch-id').value;
+            const data = {
+                name: document.getElementById('edit-branch-name').value.trim(),
+                phone: document.getElementById('edit-branch-phone').value.trim(),
+                address: document.getElementById('edit-branch-address').value.trim(),
+                city: document.getElementById('edit-branch-city').value.trim(),
+                district: document.getElementById('edit-branch-district').value.trim(),
+                workingHours: document.getElementById('edit-branch-hours').value.trim(),
+                email: document.getElementById('edit-branch-email').value.trim()
+            };
+            if (!data.name || !data.phone || !data.address || !data.city) { showToast('Vui lòng điền đầy đủ tên, điện thoại, địa chỉ và thành phố!', 'warning'); return; }
+            try {
+                if (id) await api('/branches/' + id, { method: 'PUT', body: JSON.stringify(data) });
+                else await api('/branches', { method: 'POST', body: JSON.stringify(data) });
+                bootstrap.Modal.getInstance(document.getElementById('branch-modal')).hide();
+                loadBranches();
+                showToast(id ? 'Đã cập nhật chi nhánh!' : 'Đã tạo chi nhánh!');
+            } catch (e) { showToast(e.message, 'danger'); }
+        }
+
+        async function deleteBranch(id) {
+            if (!confirm('Xóa chi nhánh này?')) return;
+            try {
+                await api('/branches/' + id, { method: 'DELETE' });
+                loadBranches();
+                showToast('Đã xóa chi nhánh!');
+            } catch (e) { showToast(e.message, 'danger'); }
+        }
+
         // Products
-        async function loadProducts() {
-            const res = await api('/products/admin/all');
-            document.getElementById('table-products').innerHTML = res.data.products.map(p => `<tr>
-                <td><img src="${p.thumbnail || p.images?.[0]?.url || '/images/no-image.jpg'}" width="50" class="rounded"></td>
-                <td>${p.name}</td>
+        let productPage = 1;
+        async function loadProducts(page = 1) {
+            productPage = page;
+            const params = new URLSearchParams({ page, limit: 15 });
+            const search = document.getElementById('filter-product-search')?.value;
+            const cat = document.getElementById('filter-product-category')?.value;
+            const status = document.getElementById('filter-product-status')?.value;
+            if (search) params.append('search', search);
+            if (cat) params.append('category', cat);
+            if (status) params.append('status', status);
+
+            // Populate category filter
+            if (document.getElementById('filter-product-category').options.length <= 1) {
+                const cats = await api('/admin/categories');
+                document.getElementById('filter-product-category').innerHTML = '<option value="">Tất cả danh mục</option>' +
+                    cats.data.categories.map(c => `<option value="${c.slug}">${c.name}</option>`).join('');
+            }
+
+            const res = await api('/products/admin/all?' + params);
+            const { products, pagination } = res.data;
+            document.getElementById('table-products').innerHTML = products.map(p => `<tr>
+                <td><img src="${p.thumbnail || p.images?.[0]?.url || '/images/no-image.jpg'}" width="50" class="rounded" onerror="this.src='/images/no-image.jpg'"></td>
+                <td>${p.name}<br><small class="text-muted">${p.sku || ''}</small></td>
                 <td>${p.category?.name || '-'}</td>
-                <td>${formatCurrency(p.price)}</td>
+                <td>${formatCurrency(p.price)}${p.originalPrice > p.price ? `<br><small class="text-muted text-decoration-line-through">${formatCurrency(p.originalPrice)}</small>` : ''}</td>
                 <td>${p.stock}</td>
-                <td>${p.isFeatured ? '<i class="bi bi-star-fill text-warning"></i>' : ''}</td>
+                <td><input type="checkbox" class="form-check-input" ${p.isFeatured ? 'checked' : ''} onchange="toggleFeatured('${p._id}', this.checked)"></td>
+                <td>
+                    <button class="btn btn-sm btn-outline-primary" onclick="openProductModal('${p._id}')"><i class="bi bi-pencil"></i></button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="deleteProduct('${p._id}')"><i class="bi bi-trash"></i></button>
+                </td>
             </tr>`).join('');
+            const pg = document.getElementById('pagination-products');
+            pg.innerHTML = pagination.pages > 1 ? Array.from({length: pagination.pages}, (_, i) => `<li class="page-item ${i+1 === page ? 'active' : ''}"><a class="page-link" href="#" onclick="loadProducts(${i+1});return false">${i+1}</a></li>`).join('') : '';
+        }
+
+        async function openProductModal(id = null) {
+            document.getElementById('edit-product-id').value = id || '';
+            document.getElementById('product-modal-title').textContent = id ? 'Sửa sản phẩm' : 'Thêm sản phẩm';
+            document.getElementById('edit-product-name').value = '';
+            document.getElementById('edit-product-sku').value = '';
+            document.getElementById('edit-product-brand').value = '';
+            document.getElementById('edit-product-price').value = '';
+            document.getElementById('edit-product-original-price').value = '';
+            document.getElementById('edit-product-cost').value = '';
+            document.getElementById('edit-product-stock').value = 0;
+            document.getElementById('edit-product-thumbnail').value = '';
+            document.getElementById('edit-product-short-desc').value = '';
+            document.getElementById('edit-product-desc').value = '';
+            document.getElementById('edit-product-active').checked = true;
+            document.getElementById('edit-product-featured').checked = false;
+            document.getElementById('edit-product-new').checked = false;
+
+            const cats = await api('/admin/categories');
+            document.getElementById('edit-product-category').innerHTML = cats.data.categories.map(c =>
+                `<option value="${c._id}">${c.name}</option>`).join('');
+
+            if (id) {
+                const res = await api('/products/admin/all?limit=200');
+                const p = res.data.products.find(x => x._id === id);
+                if (p) {
+                    document.getElementById('edit-product-name').value = p.name || '';
+                    document.getElementById('edit-product-sku').value = p.sku || '';
+                    document.getElementById('edit-product-brand').value = p.brand || '';
+                    document.getElementById('edit-product-price').value = p.price || '';
+                    document.getElementById('edit-product-original-price').value = p.originalPrice || '';
+                    document.getElementById('edit-product-cost').value = p.cost || '';
+                    document.getElementById('edit-product-stock').value = p.stock || 0;
+                    document.getElementById('edit-product-thumbnail').value = p.thumbnail || p.images?.[0]?.url || '';
+                    document.getElementById('edit-product-short-desc').value = p.shortDescription || '';
+                    document.getElementById('edit-product-desc').value = p.description || '';
+                    document.getElementById('edit-product-active').checked = p.isActive !== false;
+                    document.getElementById('edit-product-featured').checked = p.isFeatured || false;
+                    document.getElementById('edit-product-new').checked = p.isNew || false;
+                    if (p.category?._id) document.getElementById('edit-product-category').value = p.category._id;
+                }
+            }
+            showModal('product-modal');
+        }
+
+        async function saveProduct() {
+            const id = document.getElementById('edit-product-id').value;
+            const data = {
+                name: document.getElementById('edit-product-name').value.trim(),
+                sku: document.getElementById('edit-product-sku').value.trim(),
+                brand: document.getElementById('edit-product-brand').value.trim(),
+                category: document.getElementById('edit-product-category').value,
+                price: Number(document.getElementById('edit-product-price').value),
+                originalPrice: Number(document.getElementById('edit-product-original-price').value) || undefined,
+                cost: Number(document.getElementById('edit-product-cost').value) || undefined,
+                stock: Number(document.getElementById('edit-product-stock').value),
+                thumbnail: document.getElementById('edit-product-thumbnail').value.trim(),
+                shortDescription: document.getElementById('edit-product-short-desc').value.trim(),
+                description: document.getElementById('edit-product-desc').value.trim(),
+                isActive: document.getElementById('edit-product-active').checked,
+                isFeatured: document.getElementById('edit-product-featured').checked,
+                isNew: document.getElementById('edit-product-new').checked
+            };
+            if (!data.name || !data.sku || !data.category || !data.price) { showToast('Vui lòng điền đầy đủ tên, SKU, danh mục và giá!', 'warning'); return; }
+            if (!data.description) { showToast('Vui lòng nhập mô tả sản phẩm!', 'warning'); return; }
+            try {
+                if (id) await api('/products/' + id, { method: 'PUT', body: JSON.stringify(data) });
+                else await api('/products', { method: 'POST', body: JSON.stringify(data) });
+                bootstrap.Modal.getInstance(document.getElementById('product-modal')).hide();
+                loadProducts(productPage);
+                showToast(id ? 'Đã cập nhật sản phẩm!' : 'Đã tạo sản phẩm!');
+            } catch (e) { showToast(e.message, 'danger'); }
+        }
+
+        async function deleteProduct(id) {
+            if (!confirm('Xóa sản phẩm này?')) return;
+            try {
+                await api('/products/' + id, { method: 'DELETE' });
+                loadProducts(productPage);
+                showToast('Đã xóa sản phẩm!');
+            } catch (e) { showToast(e.message, 'danger'); }
+        }
+
+        async function toggleFeatured(id, checked) {
+            try {
+                await api('/products/' + id + '/toggle-featured', { method: 'PATCH' });
+                showToast(checked ? 'Đã đánh dấu nổi bật!' : 'Đã bỏ nổi bật!');
+            } catch (e) { showToast(e.message, 'danger'); }
+        }
+
+        // Categories
+        async function loadCategories() {
+            const res = await api('/admin/categories');
+            document.getElementById('table-categories').innerHTML = res.data.categories.map(c => `<tr>
+                <td>${c.icon || '📁'}</td>
+                <td>${c.name}</td>
+                <td><code>${c.slug}</code></td>
+                <td><small>${c.description || '-'}</small></td>
+                <td>${c.order}</td>
+                <td>${c.productCount || 0}</td>
+                <td><span class="badge bg-${c.isActive ? 'success' : 'secondary'}">${c.isActive ? 'Hiển thị' : 'Ẩn'}</span></td>
+                <td>
+                    <button class="btn btn-sm btn-outline-primary" onclick="openCategoryModal('${c._id}')"><i class="bi bi-pencil"></i></button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="deleteCategory('${c._id}')"><i class="bi bi-trash"></i></button>
+                </td>
+            </tr>`).join('');
+        }
+
+        async function openCategoryModal(id = null) {
+            document.getElementById('edit-category-id').value = id || '';
+            document.getElementById('category-modal-title').textContent = id ? 'Sửa danh mục' : 'Thêm danh mục';
+            document.getElementById('edit-category-name').value = '';
+            document.getElementById('edit-category-icon').value = '';
+            document.getElementById('edit-category-desc').value = '';
+            document.getElementById('edit-category-order').value = 0;
+            document.getElementById('edit-category-active').checked = true;
+
+            if (id) {
+                const res = await api('/admin/categories');
+                const c = res.data.categories.find(x => x._id === id);
+                if (c) {
+                    document.getElementById('edit-category-name').value = c.name || '';
+                    document.getElementById('edit-category-icon').value = c.icon || '';
+                    document.getElementById('edit-category-desc').value = c.description || '';
+                    document.getElementById('edit-category-order').value = c.order || 0;
+                    document.getElementById('edit-category-active').checked = c.isActive !== false;
+                }
+            }
+            showModal('category-modal');
+        }
+
+        async function saveCategory() {
+            const id = document.getElementById('edit-category-id').value;
+            const data = {
+                name: document.getElementById('edit-category-name').value.trim(),
+                icon: document.getElementById('edit-category-icon').value.trim(),
+                description: document.getElementById('edit-category-desc').value.trim(),
+                order: Number(document.getElementById('edit-category-order').value) || 0,
+                isActive: document.getElementById('edit-category-active').checked
+            };
+            if (!data.name) { showToast('Vui lòng nhập tên danh mục!', 'warning'); return; }
+            try {
+                if (id) await api('/admin/categories/' + id, { method: 'PUT', body: JSON.stringify(data) });
+                else await api('/admin/categories', { method: 'POST', body: JSON.stringify(data) });
+                bootstrap.Modal.getInstance(document.getElementById('category-modal')).hide();
+                loadCategories();
+                showToast(id ? 'Đã cập nhật danh mục!' : 'Đã tạo danh mục!');
+            } catch (e) { showToast(e.message, 'danger'); }
+        }
+
+        async function deleteCategory(id) {
+            if (!confirm('Xóa danh mục này? Sản phẩm thuộc danh mục sẽ không hiển thị.')) return;
+            try {
+                await api('/admin/categories/' + id, { method: 'DELETE' });
+                loadCategories();
+                showToast('Đã xóa danh mục!');
+            } catch (e) { showToast(e.message, 'danger'); }
+        }
+
+        // Coupons
+        async function loadCoupons() {
+            const res = await api('/coupons/admin/all');
+            document.getElementById('table-coupons').innerHTML = res.data.coupons.map(c => `<tr>
+                <td><code class="fw-bold">${c.code}</code></td>
+                <td>${c.name}</td>
+                <td>${c.type === 'percentage' ? 'Phần trăm' : c.type === 'fixed' ? 'Cố định' : 'Free ship'}</td>
+                <td>${c.type === 'percentage' ? c.value + '%' : formatCurrency(c.value)}</td>
+                <td>${formatCurrency(c.minOrderAmount)}</td>
+                <td>${c.usageCount || 0}${c.usageLimit ? ' / ' + c.usageLimit : ''}</td>
+                <td>${formatDate(c.endDate)}</td>
+                <td><span class="badge bg-${c.isActive ? 'success' : 'secondary'}">${c.isActive ? 'Hoạt động' : 'Tắt'}</span></td>
+                <td>
+                    <button class="btn btn-sm btn-outline-primary" onclick="openCouponModal('${c._id}')"><i class="bi bi-pencil"></i></button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="deleteCoupon('${c._id}')"><i class="bi bi-trash"></i></button>
+                </td>
+            </tr>`).join('');
+        }
+
+        async function openCouponModal(id = null) {
+            document.getElementById('edit-coupon-id').value = id || '';
+            document.getElementById('coupon-modal-title').textContent = id ? 'Sửa mã giảm giá' : 'Tạo mã giảm giá';
+            document.getElementById('edit-coupon-code').value = '';
+            document.getElementById('edit-coupon-name').value = '';
+            document.getElementById('edit-coupon-type').value = 'percentage';
+            document.getElementById('edit-coupon-value').value = 0;
+            document.getElementById('edit-coupon-max-discount').value = '';
+            document.getElementById('edit-coupon-min-order').value = 0;
+            document.getElementById('edit-coupon-usage-limit').value = '';
+            document.getElementById('edit-coupon-per-user').value = 1;
+            document.getElementById('edit-coupon-start').value = new Date().toISOString().slice(0, 10);
+            document.getElementById('edit-coupon-end').value = '';
+            document.getElementById('edit-coupon-desc').value = '';
+            document.getElementById('edit-coupon-active').checked = true;
+            document.getElementById('edit-coupon-public').checked = true;
+            document.getElementById('edit-coupon-first-order').checked = false;
+
+            if (id) {
+                const res = await api('/coupons/admin/all');
+                const c = res.data.coupons.find(x => x._id === id);
+                if (c) {
+                    document.getElementById('edit-coupon-code').value = c.code || '';
+                    document.getElementById('edit-coupon-name').value = c.name || '';
+                    document.getElementById('edit-coupon-type').value = c.type || 'percentage';
+                    document.getElementById('edit-coupon-value').value = c.value || 0;
+                    document.getElementById('edit-coupon-max-discount').value = c.maxDiscount || '';
+                    document.getElementById('edit-coupon-min-order').value = c.minOrderAmount || 0;
+                    document.getElementById('edit-coupon-usage-limit').value = c.usageLimit || '';
+                    document.getElementById('edit-coupon-per-user').value = c.perUserLimit || 1;
+                    document.getElementById('edit-coupon-start').value = c.startDate ? new Date(c.startDate).toISOString().slice(0,10) : '';
+                    document.getElementById('edit-coupon-end').value = c.endDate ? new Date(c.endDate).toISOString().slice(0,10) : '';
+                    document.getElementById('edit-coupon-desc').value = c.description || '';
+                    document.getElementById('edit-coupon-active').checked = c.isActive !== false;
+                    document.getElementById('edit-coupon-public').checked = c.isPublic !== false;
+                    document.getElementById('edit-coupon-first-order').checked = c.firstOrderOnly || false;
+                }
+            }
+            showModal('coupon-modal');
+        }
+
+        async function saveCoupon() {
+            const id = document.getElementById('edit-coupon-id').value;
+            const code = document.getElementById('edit-coupon-code').value.trim().toUpperCase();
+            const name = document.getElementById('edit-coupon-name').value.trim();
+            const endDate = document.getElementById('edit-coupon-end').value;
+            if (!code || !name || !endDate) { showToast('Vui lòng nhập mã, tên và ngày kết thúc!', 'warning'); return; }
+            const data = {
+                code, name,
+                description: document.getElementById('edit-coupon-desc').value.trim(),
+                type: document.getElementById('edit-coupon-type').value,
+                value: Number(document.getElementById('edit-coupon-value').value) || 0,
+                maxDiscount: Number(document.getElementById('edit-coupon-max-discount').value) || null,
+                minOrderAmount: Number(document.getElementById('edit-coupon-min-order').value) || 0,
+                usageLimit: Number(document.getElementById('edit-coupon-usage-limit').value) || null,
+                perUserLimit: Number(document.getElementById('edit-coupon-per-user').value) || 1,
+                startDate: document.getElementById('edit-coupon-start').value || new Date().toISOString(),
+                endDate,
+                isActive: document.getElementById('edit-coupon-active').checked,
+                isPublic: document.getElementById('edit-coupon-public').checked,
+                firstOrderOnly: document.getElementById('edit-coupon-first-order').checked
+            };
+            try {
+                if (id) await api('/coupons/' + id, { method: 'PUT', body: JSON.stringify(data) });
+                else await api('/coupons', { method: 'POST', body: JSON.stringify(data) });
+                bootstrap.Modal.getInstance(document.getElementById('coupon-modal')).hide();
+                loadCoupons();
+                showToast(id ? 'Đã cập nhật mã giảm giá!' : 'Đã tạo mã giảm giá!');
+            } catch (e) { showToast(e.message, 'danger'); }
+        }
+
+        async function deleteCoupon(id) {
+            if (!confirm('Xóa mã giảm giá này?')) return;
+            try {
+                await api('/coupons/' + id, { method: 'DELETE' });
+                loadCoupons();
+                showToast('Đã xóa mã giảm giá!');
+            } catch (e) { showToast(e.message, 'danger'); }
+        }
+
+        // Reviews
+        async function loadReviews() {
+            const res = await api('/admin/reviews');
+            document.getElementById('table-reviews').innerHTML = res.data.reviews.map(r => `<tr>
+                <td>${r.product?.name || '-'}</td>
+                <td>${r.user?.name || r.user?.fullName || 'Ẩn danh'}</td>
+                <td>${'★'.repeat(r.rating)}<span class="text-muted">${'★'.repeat(5 - r.rating)}</span></td>
+                <td><small>${(r.comment || '').slice(0, 60)}${(r.comment || '').length > 60 ? '...' : ''}</small></td>
+                <td>${formatDate(r.createdAt)}</td>
+                <td><span class="badge bg-${r.isApproved ? 'success' : 'warning'}">${r.isApproved ? 'Đã duyệt' : 'Chờ duyệt'}</span></td>
+                <td>
+                    ${!r.isApproved ? `<button class="btn btn-sm btn-outline-success" onclick="approveReview('${r._id}')"><i class="bi bi-check-lg"></i></button>` : ''}
+                    <button class="btn btn-sm btn-outline-danger" onclick="deleteReview('${r._id}')"><i class="bi bi-trash"></i></button>
+                </td>
+            </tr>`).join('');
+        }
+
+        async function approveReview(id) {
+            try {
+                await api('/admin/reviews/' + id + '/approve', { method: 'PATCH' });
+                loadReviews();
+                showToast('Đã phê duyệt đánh giá!');
+            } catch (e) { showToast(e.message, 'danger'); }
+        }
+
+        async function deleteReview(id) {
+            if (!confirm('Xóa đánh giá này?')) return;
+            try {
+                await api('/admin/reviews/' + id, { method: 'DELETE' });
+                loadReviews();
+                showToast('Đã xóa đánh giá!');
+            } catch (e) { showToast(e.message, 'danger'); }
         }
 
         // Orders
@@ -550,16 +1275,36 @@
         }
 
         // Users
-        async function loadUsers() {
-            // Danh sách users chỉ có ở /admin/users
-            const res = await api('/admin/users');
-            document.getElementById('table-users').innerHTML = res.data.users.map(u => `<tr>
-                <td>${u.name}</td>
+        let userPage = 1;
+        async function loadUsers(page = 1) {
+            userPage = page;
+            const params = new URLSearchParams({ page, limit: 15 });
+            const search = document.getElementById('filter-user-search')?.value;
+            const role = document.getElementById('filter-user-role')?.value;
+            if (search) params.append('search', search);
+            if (role) params.append('role', role);
+            const res = await api('/admin/users?' + params);
+            const { users, pagination } = res.data;
+            document.getElementById('table-users').innerHTML = users.map(u => `<tr>
+                <td>${u.name || u.fullName || '-'}</td>
                 <td>${u.email}</td>
                 <td>${u.phone || '-'}</td>
-                <td><span class="badge bg-${u.role === 'admin' ? 'danger' : 'primary'}">${u.role}</span></td>
+                <td><span class="badge bg-${u.role === 'admin' ? 'danger' : u.role === 'staff' ? 'warning' : 'primary'}">${u.role}</span></td>
+                <td><span class="badge bg-${u.isActive !== false ? 'success' : 'secondary'}">${u.isActive !== false ? 'Hoạt động' : 'Đã khoá'}</span></td>
                 <td>${formatDate(u.createdAt)}</td>
+                <td>${u.role !== 'admin' ? `<button class="btn btn-sm btn-outline-${u.isActive !== false ? 'danger' : 'success'}" onclick="toggleUserStatus('${u._id}')" title="${u.isActive !== false ? 'Khoá' : 'Mở khoá'}"><i class="bi bi-${u.isActive !== false ? 'lock' : 'unlock'}"></i></button>` : '-'}</td>
             </tr>`).join('');
+            const pg = document.getElementById('pagination-users');
+            pg.innerHTML = pagination.pages > 1 ? Array.from({length: pagination.pages}, (_, i) => `<li class="page-item ${i+1 === page ? 'active' : ''}"><a class="page-link" href="#" onclick="loadUsers(${i+1});return false">${i+1}</a></li>`).join('') : '';
+        }
+
+        async function toggleUserStatus(id) {
+            if (!confirm('Xác nhận thay đổi trạng thái tài khoản này?')) return;
+            try {
+                const res = await api('/admin/users/' + id + '/toggle-status', { method: 'PATCH' });
+                loadUsers(userPage);
+                showToast(res.message || 'Đã cập nhật!');
+            } catch (e) { showToast(e.message, 'danger'); }
         }
 
         // Actions

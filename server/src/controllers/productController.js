@@ -300,11 +300,23 @@ exports.toggleFeatured = asyncHandler(async (req, res) => {
 // @desc    Get all products for admin
 // @access  Private/Admin
 exports.getAdminProducts = asyncHandler(async (req, res) => {
-    const { page = 1, limit = 20, status } = req.query;
+    const { page = 1, limit = 20, status, search, category } = req.query;
 
     const query = {};
     if (status === 'active') query.isActive = true;
     if (status === 'inactive') query.isActive = false;
+
+    if (search) {
+        query.$or = [
+            { name: { $regex: search, $options: 'i' } },
+            { sku: { $regex: search, $options: 'i' } }
+        ];
+    }
+
+    if (category) {
+        const cat = await Category.findOne({ slug: category });
+        if (cat) query.category = cat._id;
+    }
 
     const [products, total] = await Promise.all([
         Product.find(query)
